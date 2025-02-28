@@ -1,0 +1,23 @@
+.Navigation {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.Item {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 20px;
+    background-color: #ececec;
+    border: solid 1px transparent;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #dcdcdc;
+    }
+
+    &.Active {
+        background-color: #dcdcdc;
+        border: solid 1px #bababa;
+    }
+}

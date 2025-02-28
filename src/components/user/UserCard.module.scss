@@ -1,0 +1,48 @@
+.AvatarContainer {
+    display: inline-block;
+    position: relative;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+}
+
+.Avatar,
+.Decoration {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.Avatar {
+    border-radius: 50%;
+}
+
+// --------
+
+.Role {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 100%;
+}
+
+// --------
+
+.Username {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 100%;
+}
+
+// --------
+
+.Card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.CardText {
+    display: flex;
+    flex-direction: column;
+}

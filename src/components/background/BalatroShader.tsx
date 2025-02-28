@@ -1,12 +1,12 @@
 'use client';
 
-import { Suspense, lazy } from 'react';
-const Shader = lazy(async () => {
-    const shaders = await import('react-shaders');
-    return {
-        default: shaders.Shader,
-    };
-});
+// import { Suspense, lazy } from 'react';
+// const Shader = lazy(async () => {
+//     const shaders = await import('react-shaders');
+//     return {
+//         default: shaders.Shader,
+//     };
+// });
 
 // Original shader code
 
@@ -124,8 +124,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 export default function BalatroShaderBackground() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <Shader fs={shaderText} />
-        </Suspense>
+        <></>
+        // <Suspense fallback={<div>Loading...</div>}>
+        //     <Shader fs={shaderText} />
+        // </Suspense>
     );
 }

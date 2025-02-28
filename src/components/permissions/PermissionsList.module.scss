@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+.List {
+    font-family: 'Roboto', sans-serif;
+    padding: 24px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+// ----------
+
+.Group {
+    font-size: 16px;
+    margin-bottom: 16px;
+
+    border-bottom: solid 1px #00000044;
+    padding-bottom: 16px;
+
+    &:last-child {
+        border-bottom: none;
+        padding-bottom: 0px;
+    }
+
+    &>.Name {
+        font-size: 32px;
+        line-height: 1.2;
+        font-weight: 400;
+        color: #202020;
+    }
+
+    &>.Description {
+        font-size: 20px;
+        color: #404040;
+    }
+}
+
+// ----------
+
+.Items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.Item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ItemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &>.Name {
+        font-size: 20px;
+        font-weight: 400;
+        color: #202020;
+    }
+
+    &>.Description {
+        font-size: 16px;
+        color: #404040;
+    }
+}
+
+// ----------
+
+.Switch {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 20px;
+
+    &>.Slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 20px;
+
+        &:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.25s;
+            border-radius: 50%;
+        }
+    }
+
+    &>input {
+        display: none;
+    }
+
+    &>input:checked+.Slider {
+        background-color: #2196F3;
+    }
+
+    input:checked+.Slider:before {
+        transform: translateX(14px);
+    }
+}
