@@ -1,0 +1,54 @@
+@keyframes shake {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.Container {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    z-index: 1000;
+    transform: translate(-50%, 125%);
+    transition: transform 0.25s;
+
+    &.Opened {
+        transform: translate(-50%, -20px);
+    }
+}
+
+.Modal {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    max-width: 100vh;
+
+    &.Shaking {
+        animation: shake 0.25s;
+    }
+}
+
+.Text {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.Actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}

@@ -10,12 +10,6 @@
 }
 
 // ----------
-
-.Sidebar {
-    width: 250px;
-    height: 500px;
-}
-
 .List {
     position: sticky;
     top: 16px;
@@ -51,6 +45,44 @@
 
 // ----------
 
-.Content {
-    flex: 1;
+.RoleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &.Loading {
+        opacity: 0.5;
+    }
+}
+
+.RoleInfoName {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    input {
+        border: none;
+        background-color: rgba(0, 0, 0, 0.05);
+        font-size: 20px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        outline: none;
+    }
+
+    input:invalid {
+        outline: solid 1px red;
+    }
+}
+
+.RoleInfoColor {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    label {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+    }
 }

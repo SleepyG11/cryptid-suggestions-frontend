@@ -1,12 +1,29 @@
+'use client';
+
 import styles from './PermissionsList.module.scss';
+
+export type PermissionListChangeEvent = {
+    permission: bigint;
+    oldValue: boolean;
+    newValue: boolean;
+    oldPermissions: bigint;
+    newPermissions: bigint;
+};
 
 export function Item({
     permissionDefinition,
     permissions,
+    onChange = () => {},
 }: {
     permissionDefinition: any;
     permissions: any;
+    onChange?: (event: PermissionListChangeEvent) => void;
 }) {
+    const isOn =
+        permissions &&
+        (BigInt(permissions) & BigInt(permissionDefinition.value)) !==
+            BigInt(0);
+
     return (
         <div className={styles.Item}>
             <div className={styles.ItemInfo}>
@@ -18,12 +35,22 @@ export function Item({
             <label className={styles.Switch}>
                 <input
                     type="checkbox"
-                    checked={
-                        (BigInt(permissions) &
-                            BigInt(permissionDefinition.value)) !==
-                        BigInt(0)
-                    }
-                    readOnly={true}
+                    checked={isOn}
+                    onChange={(e) => {
+                        const oldValue = isOn;
+                        const newValue = !isOn;
+                        const oldPermissions = BigInt(permissions);
+                        const newPermissions =
+                            BigInt(permissions) ^
+                            BigInt(permissionDefinition.value);
+                        onChange({
+                            permission: permissionDefinition.value,
+                            oldValue,
+                            newValue,
+                            oldPermissions,
+                            newPermissions,
+                        });
+                    }}
                 />
                 <span className={styles.Slider}></span>
             </label>
@@ -34,9 +61,11 @@ export function Item({
 export function Group({
     permissions,
     groupDefinition,
+    onChange = () => {},
 }: {
     permissions: any;
     groupDefinition: any;
+    onChange?: (event: PermissionListChangeEvent) => void;
 }) {
     return (
         <div className={styles.Group}>
@@ -48,6 +77,7 @@ export function Group({
                         key={permission.value}
                         permissionDefinition={permission}
                         permissions={permissions}
+                        onChange={onChange}
                     />
                 ))}
             </div>
@@ -57,9 +87,11 @@ export function Group({
 export default function PermissionsList({
     permissions,
     definition,
+    onChange = () => {},
 }: {
     permissions: any;
     definition: any;
+    onChange?: (event: PermissionListChangeEvent) => void;
 }) {
     return (
         <div className={styles.List}>
@@ -68,6 +100,7 @@ export default function PermissionsList({
                     key={group.name}
                     groupDefinition={group}
                     permissions={permissions}
+                    onChange={onChange}
                 />
             ))}
         </div>

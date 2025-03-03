@@ -98,3 +98,12 @@ caption:not([align]) {
 [hidden] {
     display: none !important; /* make sure this cannot be overridden by utilities */
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 400;
+}

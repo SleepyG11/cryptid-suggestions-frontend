@@ -48,7 +48,7 @@ UserCard.Avatar = function Avatar({
 };
 UserCard.Role = function Role({ user }: { user: any }) {
     return (
-        <span className={styles.Role} style={{ color: user.role?.hexColor }}>
+        <span className={styles.Role} style={{ color: user.role?.color }}>
             [{user.role?.name}]
         </span>
     );

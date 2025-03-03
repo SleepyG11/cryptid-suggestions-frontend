@@ -1,3 +1,5 @@
+import 'server-only';
+
 import {
     Table,
     Column,
@@ -32,13 +34,13 @@ export class Role extends Model {
     name: string;
 
     @AllowNull(false)
-    @Column(DataType.INTEGER)
-    color: number;
+    @Column(DataType.CHAR(7))
+    color: string;
 
     @AllowNull(false)
     @Default(0)
     @Column(DataType.BIGINT)
-    permissions: number;
+    permissions: string;
 
     @AllowNull(false)
     @Default(true)
@@ -57,14 +59,6 @@ export class Role extends Model {
 
     @HasMany(() => User)
     users: User[];
-
-    @Column({
-        type: DataType.VIRTUAL,
-        get() {
-            return `#${this.getDataValue('color').toString(16).padStart(6, '0')}`;
-        },
-    })
-    hexColor: string;
 }
 
 @Table({
@@ -107,12 +101,12 @@ export class User extends Model {
     @AllowNull(false)
     @Default(0)
     @Column(DataType.BIGINT)
-    allowPermissionsOverride: number;
+    allowPermissionsOverride: string;
 
     @AllowNull(false)
     @Default(0)
     @Column(DataType.BIGINT)
-    denyPermissionsOverride: number;
+    denyPermissionsOverride: string;
 
     @AllowNull(false)
     @Default(false)
@@ -152,6 +146,15 @@ export class User extends Model {
         },
     })
     permissions: string;
+
+    hasPermissions(...permissions: (bigint | number | string)[]) {
+        if (this.getDataValue('root')) return true;
+
+        const userPermissions = BigInt(this.permissions);
+        return permissions.every(
+            (permission) => (userPermissions & BigInt(permission)) !== BigInt(0)
+        );
+    }
 
     static async fromDiscordUser(user: any) {
         const defaultRoleId = await ConfigModel.findByPk('default_role_id');

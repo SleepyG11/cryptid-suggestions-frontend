@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { ConfigType } from './models/Config.model';
 import sequelize, { RoleModel, ConfigModel } from './sequelize';
 import { RolePermissions } from '@/lib/roles/enums';

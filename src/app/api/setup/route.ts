@@ -1,7 +1,7 @@
 import seedDatabase from '@/database/seeding';
 import { NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
     if (process.env.NODE_ENV === 'production') {
         return NextResponse.json(
             { error: 'This route is only available in development mode' },

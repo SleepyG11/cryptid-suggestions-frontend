@@ -1,11 +1,18 @@
 import styles from './Layout.module.scss';
 
+import { ConfirmModalProvider, ConfirmModal } from '../confirm-modal/Modal';
+
 export default function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return <div className={styles.Layout}>{children}</div>;
+    return (
+        <ConfirmModalProvider>
+            <ConfirmModal />
+            <div className={styles.Layout}>{children}</div>
+        </ConfirmModalProvider>
+    );
 }
 
 DashboardLayout.Sidebar = function Sidebar({
