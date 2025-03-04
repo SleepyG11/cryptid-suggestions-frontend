@@ -18,6 +18,11 @@ import type {
 import jwt from 'jsonwebtoken';
 
 import { UserModel } from '@/database/sequelize';
+import {
+    actionError,
+    actionResponse,
+    type ActionResponse,
+} from '../common/actionResponse';
 
 // ------------------------
 
@@ -55,13 +60,13 @@ const verifyJWT = async <T extends object>(token: string): Promise<T> => {
 function verifyDiscordOAuth2State(state: string) {
     return true;
 }
-export async function verifyAccessJWTToken(accessToken?: string) {
+async function verifyAccessJWTToken(accessToken?: string) {
     if (!accessToken) return null;
     return await verifyJWT<AccessJWTTokenPayload>(accessToken).catch(
         () => null
     );
 }
-export async function verifyRefreshJWTToken(refreshToken?: string) {
+async function verifyRefreshJWTToken(refreshToken?: string) {
     if (!refreshToken) return null;
     return await verifyJWT<RefreshJWTTokenPayload>(refreshToken).catch(
         () => null
@@ -112,9 +117,9 @@ export async function exchangeOauthCode(
     code: string,
     state: string,
     redirectUri: string
-): Promise<DiscordTokensExchangeResponse> {
+): Promise<ActionResponse<DiscordTokensExchangeResponse>> {
     if (!verifyDiscordOAuth2State(state)) {
-        throw new Error('Invalid state');
+        return actionError.badRequest('Invalid data');
     }
 
     const searchParams = new URLSearchParams({
@@ -123,68 +128,108 @@ export async function exchangeOauthCode(
         redirect_uri: redirectUri,
     } as Record<string, string>);
 
-    const exchangeData = await fetch(DISCORD_API_URL + '/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${Buffer.from(`${DISCORD_CLIENT_ID}:${DISCORD_CLIENT_SECRET}`).toString('base64')}`,
-        },
-        body: searchParams.toString(),
-    }).then((r) => r.json());
-
-    if (!exchangeData.access_token) {
-        throw new Error('Invalid authorization response');
+    let exchangeData: DiscordTokensExchangeResponse;
+    try {
+        exchangeData = await fetch(DISCORD_API_URL + '/oauth2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: `Basic ${Buffer.from(`${DISCORD_CLIENT_ID}:${DISCORD_CLIENT_SECRET}`).toString('base64')}`,
+            },
+            body: searchParams.toString(),
+        }).then((r) => r.json());
+    } catch (e) {
+        console.error(e);
+        return actionError.internalServerError();
     }
 
-    return exchangeData;
+    if (!exchangeData.access_token) {
+        return actionError.badRequest('Invalid data');
+    }
+
+    return actionResponse(exchangeData);
 }
 export async function exchangeRefreshToken(
     refreshToken: string
-): Promise<DiscordTokensExchangeResponse> {
+): Promise<ActionResponse<DiscordTokensExchangeResponse>> {
     const searchParams = new URLSearchParams({
         grant_type: 'refresh_token',
         refresh_token: refreshToken,
     } as Record<string, string>);
 
-    const exchangeData = await fetch(DISCORD_API_URL + '/oauth2/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: searchParams.toString(),
-    }).then((r) => r.json());
-
-    if (!exchangeData.access_token) {
-        throw new Error('Invalid refresh response');
+    let exchangeData: DiscordTokensExchangeResponse;
+    try {
+        exchangeData = await fetch(DISCORD_API_URL + '/oauth2/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: searchParams.toString(),
+        }).then((r) => r.json());
+    } catch (e) {
+        console.error(e);
+        return actionError.internalServerError();
     }
 
-    return exchangeData;
+    if (!exchangeData.access_token) {
+        return actionError.badRequest('Invalid refresh token');
+    }
+
+    return actionResponse(exchangeData);
 }
 export async function revokeToken(
     token: string,
     type: 'access_token' | 'refresh_token'
-) {
-    return await fetch(DISCORD_API_URL + '/oauth2/token/revoke', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({ token, token_type_hint: type }),
-    }).then((r) => r.ok);
+): Promise<ActionResponse<undefined>> {
+    let response: Response;
+    try {
+        response = await fetch(DISCORD_API_URL + '/oauth2/token/revoke', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ token, token_type_hint: type }),
+        });
+    } catch (e) {
+        console.error(e);
+        return {
+            success: false,
+            status: 500,
+            message: 'Internal server error',
+        };
+    }
+
+    if (!response.ok) {
+        return actionError.badRequest('Failed to revoke token');
+    }
+
+    return actionResponse(undefined);
 }
 
 // ------------------------
 
-export async function getDiscordUser(accessToken: string): Promise<any> {
-    const userResponse = await fetch(DISCORD_API_URL + '/users/@me', {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+export async function getDiscordUser(
+    accessToken: string
+): Promise<ActionResponse<any>> {
+    let userResponse: Response;
+    try {
+        userResponse = await fetch(DISCORD_API_URL + '/users/@me', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+    } catch (e) {
+        console.error(e);
+        return actionError.internalServerError();
+    }
+
+    if (!userResponse.ok) {
+        return actionError.badRequest('Failed to fetch user data');
+    }
 
     const userData = await userResponse.json();
 
-    return userData;
+    return actionResponse(userData);
 }
 
 // ------------------------
@@ -193,20 +238,33 @@ export async function loginFromCode(
     code: string,
     state: string,
     redirectUri: string
-): Promise<AccessJWTTokenPayload | null> {
+): Promise<ActionResponse<AccessJWTTokenPayload>> {
+    const authDataResult = await exchangeOauthCode(code, state, redirectUri);
+    if (!authDataResult.success) return authDataResult;
+
+    const authData = authDataResult.data;
+    if (!authData.scope.includes('identify')) {
+        return actionError.badRequest('Invalid scopes');
+    }
+
+    const userDataResult = await getDiscordUser(authData.access_token);
+    if (!userDataResult.success) return userDataResult;
+
+    const userData = userDataResult.data;
+
     try {
-        const authData = await exchangeOauthCode(code, state, redirectUri);
-        if (!authData.scope.includes('identify')) {
-            throw new Error('Invalid scopes');
-        }
-        const userData = await getDiscordUser(authData.access_token);
         await UserModel.fromDiscordUser(userData);
-        await setSessionCookies(authData, userData.id);
-        return { id: userData.id, access: authData.access_token };
     } catch (e) {
         console.error(e);
-        return null;
+        return actionError.databaseError();
     }
+
+    await setSessionCookies(authData, userData.id);
+
+    return actionResponse({
+        id: userData.id,
+        access: authData.access_token,
+    });
 }
 export async function logout() {
     const cookieStore = await cookies();
@@ -232,30 +290,46 @@ export async function logout() {
     cookieStore.delete(DISCORD_ACCESS_TOKEN_COOKIE);
     cookieStore.delete(DISCORD_REFRESH_TOKEN_COOKIE);
 }
-export async function getOrRefreshAccessToken(): Promise<AccessJWTTokenPayload | null> {
+export async function getOrRefreshAccessToken(): Promise<
+    ActionResponse<AccessJWTTokenPayload>
+> {
     const cookieStore = await cookies();
     const accessData = await verifyAccessJWTToken(
         cookieStore.get(DISCORD_ACCESS_TOKEN_COOKIE)?.value
     );
-    if (accessData) return accessData;
+    if (accessData) {
+        return actionResponse(accessData);
+    }
+
     const refreshData = await verifyRefreshJWTToken(
         cookieStore.get(DISCORD_REFRESH_TOKEN_COOKIE)?.value
     );
     if (refreshData) {
+        const authDataResult = await exchangeRefreshToken(refreshData.refresh);
+        if (!authDataResult.success) return authDataResult;
+
+        const authData = authDataResult.data;
+        if (!authData.scope.includes('identify')) {
+            return actionError.badRequest('Invalid scopes');
+        }
+
+        const userDataResult = await getDiscordUser(authData.access_token);
+        if (!userDataResult.success) return userDataResult;
+
+        const userData = userDataResult.data;
         try {
-            const authData = await exchangeRefreshToken(refreshData.refresh);
-            if (!authData.scope.includes('identify')) {
-                throw new Error('Invalid scopes');
-            }
-            const userData = await getDiscordUser(authData.access_token);
             await UserModel.fromDiscordUser(userData);
-            await setSessionCookies(authData, userData.id);
-            return { access: authData.access_token, id: userData.id };
         } catch (e) {
             console.error(e);
-            return null;
+            return actionError.databaseError();
         }
+        await setSessionCookies(authData, userData.id);
+
+        return actionResponse({
+            access: authData.access_token,
+            id: userData.id,
+        });
     }
 
-    return null;
+    return actionError.unauthorized();
 }

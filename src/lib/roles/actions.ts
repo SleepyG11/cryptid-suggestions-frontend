@@ -8,44 +8,72 @@ import {
 } from '@/lib/users/actions';
 import { Attributes } from 'sequelize';
 import { Role } from '@/database/models/User.model';
+import {
+    actionError,
+    actionResponse,
+    type ActionResponse,
+} from '../common/actionResponse';
 
-export async function getAllRoles(): Promise<Attributes<Role>[]> {
+export async function getAllRoles(): Promise<
+    ActionResponse<Attributes<Role>[]>
+> {
     const allowed = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) throw new Error('Missing permissions');
+    if (!allowed) {
+        return actionError.forbidden();
+    }
 
-    const roles = await RoleModel.findAll();
-    return roles.map((role) => role.toJSON());
+    try {
+        const roles = await RoleModel.findAll();
+        return actionResponse(roles.map((role) => role.toJSON()));
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError();
+    }
 }
 
 export async function getRoleById(
     id: number
-): Promise<Attributes<Role> | null> {
+): Promise<ActionResponse<Attributes<Role> | null>> {
     const allowed = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) throw new Error('Missing permissions');
+    if (!allowed) {
+        return actionError.forbidden();
+    }
 
-    const role = await RoleModel.findByPk(id);
-    return role ? role.toJSON() : null;
+    try {
+        const role = await RoleModel.findByPk(id);
+        return actionResponse(role ? role.toJSON() : null);
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError();
+    }
 }
 
 export async function createRole(data: {
     name: string;
     color: number;
     permissions: string;
-}): Promise<Attributes<Role>> {
+}): Promise<ActionResponse<Attributes<Role>>> {
     const allowed = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) throw new Error('Missing permissions');
+    if (!allowed) {
+        return actionError.forbidden();
+    }
 
-    const role = await RoleModel.create(data, {
-        fields: ['name', 'color', 'permissions'],
-        returning: true,
-    });
-    return role.toJSON();
+    try {
+        const role = await RoleModel.create(data, {
+            fields: ['name', 'color', 'permissions'],
+            returning: true,
+        });
+        return actionResponse(role.toJSON());
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError();
+    }
 }
 
 export async function updateRole(
@@ -55,27 +83,34 @@ export async function updateRole(
         color: number;
         permissions: string;
     }
-): Promise<Attributes<Role>> {
+): Promise<ActionResponse<Attributes<Role>>> {
     const allowed = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) throw new Error('Missing permissions');
-
-    const role = await RoleModel.findByPk(id);
-    if (!role) {
-        throw new Error('Role not found');
+    if (!allowed) {
+        return actionError.forbidden();
     }
-    await role.update(
-        {
-            name: data.name,
-            color: data.color,
-            permissions: data.permissions,
-        },
-        {
-            returning: true,
-            fields: ['name', 'color', 'permissions'],
-            omitNull: true,
+
+    try {
+        const role = await RoleModel.findByPk(id);
+        if (!role) {
+            return actionError.notFound('Role not found');
         }
-    );
-    return role.toJSON();
+        await role.update(
+            {
+                name: data.name,
+                color: data.color,
+                permissions: data.permissions,
+            },
+            {
+                returning: true,
+                fields: ['name', 'color', 'permissions'],
+                omitNull: true,
+            }
+        );
+        return actionResponse(role.toJSON());
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError();
+    }
 }

@@ -6,9 +6,10 @@ import { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import type { Attributes } from 'sequelize';
 import { Role } from '@/database/models/User.model';
+import { handleActionResponse } from '../common/actionResponse';
 
 export function useRoles() {
-    return useSWR('/roles', getAllRoles, {
+    return useSWR('/roles', () => getAllRoles().then(handleActionResponse), {
         fallbackData: [],
     });
 }
@@ -16,7 +17,7 @@ export function useRoles() {
 export function useRole(roleId?: number | null) {
     return useSWR<Attributes<Role> | null>(
         () => (roleId != null ? `/roles/${roleId}` : null),
-        getRoleById.bind(null, roleId!),
+        () => getRoleById(roleId!).then(handleActionResponse),
         {
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
@@ -27,7 +28,8 @@ export function useRole(roleId?: number | null) {
 export function useCreateRoleMutation() {
     return useSWRMutation(
         '/roles',
-        (key: string, { arg }: { arg: any }) => createRole(arg),
+        (key: string, { arg }: { arg: any }) =>
+            createRole(arg).then(handleActionResponse),
         {
             revalidate: true,
             populateCache: (newData, currentData) => {
@@ -40,7 +42,8 @@ export function useCreateRoleMutation() {
 export function useUpdateRoleMutation(roleId?: number | null) {
     return useSWRMutation(
         () => (roleId != null ? `/roles/${roleId}` : null),
-        (key: string, { arg }: { arg: any }) => updateRole(roleId!, arg),
+        (key: string, { arg }: { arg: any }) =>
+            updateRole(roleId!, arg).then(handleActionResponse),
         {
             onSuccess: () => {
                 mutate('/roles');
