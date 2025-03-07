@@ -27,10 +27,11 @@ const context = createContext<{
     update: (
         newState: Partial<{
             isOpen: boolean;
-            onConfirm?: (() => void) | null;
-            onCancel?: (() => void) | null;
             isDisabled?: boolean;
             isLoading?: boolean;
+            isShaking?: boolean;
+            onConfirm?: (() => void) | null;
+            onCancel?: (() => void) | null;
         }>
     ) => void;
     clear: () => void;
@@ -75,11 +76,13 @@ export function ConfirmModalProvider({
                 onConfirm: (() => void) | null;
                 onCancel: (() => void) | null;
                 isDisabled: boolean;
+                isShaking: boolean;
             }>
         ) => {
             setIsOpen((s) => newState.isOpen ?? s);
             setIsLoading((s) => newState.isLoading ?? s);
             setIsDisabled((s) => newState.isDisabled ?? s);
+            setIsShaking((s) => newState.isShaking ?? s);
             setOnConfirm((s) => replaceWithNull(s, newState.onConfirm));
             setOnCancel((s) => replaceWithNull(s, newState.onCancel));
         },

@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import styles from './Navigation.module.scss';
 import classNames from 'classnames';
-import Link from 'next/link';
+import ConfirmProtectedLink from './components/ConfirmProtectedLink';
 
 const navigationItems = [
     {
@@ -32,14 +32,14 @@ function Item({ label, href }: { label: string; href: string }) {
     const pathname = usePathname();
 
     return (
-        <Link
+        <ConfirmProtectedLink
             href={href}
             className={classNames(styles.Item, {
                 [styles.Active]: pathname.startsWith(href),
             })}
         >
             {label}
-        </Link>
+        </ConfirmProtectedLink>
     );
 }
 

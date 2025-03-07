@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './ManageUsers.module.scss';
 import classNames from 'classnames';
@@ -11,8 +11,8 @@ import UserCard from '@/components/user/UserCard';
 import _ from 'lodash';
 import { handleAction } from '@/lib/common/actionResponse';
 import type AsyncReactSelect from 'react-select/async';
-import { useRouter, useParams } from 'next/navigation';
-import { useConfirmModal } from '@/components/confirm-modal/Modal';
+import { useParams } from 'next/navigation';
+import ConfirmProtectedLink from '../components/ConfirmProtectedLink';
 const AsyncSelect = dynamic(() => import('react-select/async'), {
     ssr: false,
     loading: () => <div className={styles.ListItem}>Loading...</div>,
@@ -20,53 +20,8 @@ const AsyncSelect = dynamic(() => import('react-select/async'), {
 
 // -----------
 
-function useSelectedUserId(): [
-    string | undefined,
-    (userId: string, force?: boolean) => void,
-] {
-    const { isOpen, setIsShaking } = useConfirmModal();
-    const params = useParams();
-    const router = useRouter();
-
-    const setSelectedUserId = useCallback(
-        (userId: string, force?: boolean) => {
-            if (force || !isOpen) {
-                router.push(`/dashboard/users/${userId}`);
-            } else {
-                setIsShaking(true);
-            }
-        },
-        [router, isOpen, setIsShaking]
-    );
-
-    return [params.userId as string | undefined, setSelectedUserId];
-}
-
-// -----------
-
-function ListItem({ user }: { user: any }) {
-    const [selectedUserId, setSelectedUserId] = useSelectedUserId();
-
-    return (
-        <div
-            className={classNames(styles.ListItem, {
-                [styles.Selected]: selectedUserId == user.id,
-            })}
-            key={user.id}
-            onClick={() => setSelectedUserId(user.id)}
-        >
-            <div className={styles.Info}>
-                <UserCard.Username user={user} />
-                <UserCard.Role user={user} />
-            </div>
-            <UserCard.Avatar user={user} size={32} />
-        </div>
-    );
-}
-
-// -----------
-
 export function UsersList() {
+    const params = useParams();
     const [filter, setFilter] = useState('');
     const [roles, setRoles] = useState<string[]>([]);
     const { data } = useUsers(
@@ -123,7 +78,19 @@ export function UsersList() {
                 />
                 <div className={styles.Separator} />
                 {data.map((user: any) => (
-                    <ListItem key={user.id} user={user} />
+                    <ConfirmProtectedLink
+                        className={classNames(styles.ListItem, {
+                            [styles.Selected]: params.userId == user.id,
+                        })}
+                        key={user.id}
+                        href={`/dashboard/users/${user.id}`}
+                    >
+                        <div className={styles.Info}>
+                            <UserCard.Username user={user} />
+                            <UserCard.Role user={user} />
+                        </div>
+                        <UserCard.Avatar user={user} size={32} />
+                    </ConfirmProtectedLink>
                 ))}
             </div>
         </DashboardLayout.Sidebar>

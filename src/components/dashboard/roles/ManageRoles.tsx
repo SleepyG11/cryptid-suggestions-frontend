@@ -16,32 +16,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { useConfirmModal } from '../../confirm-modal/Modal';
 import _ from 'lodash';
 import { useParams, useRouter } from 'next/navigation';
-
-function useSelectedRoleId(): [
-    string | null,
-    (roleId: string | null, force?: boolean) => void,
-] {
-    const params = useParams();
-    const router = useRouter();
-    const { isOpen, setIsShaking } = useConfirmModal();
-
-    const setSelectedRoleId = useCallback(
-        (roleId: string | null, force?: boolean) => {
-            if (force || !isOpen) {
-                router.push(`/dashboard/roles/${roleId}`);
-            } else {
-                setIsShaking(true);
-            }
-        },
-        [router, isOpen, setIsShaking]
-    );
-
-    return [params.roleId as string | null, setSelectedRoleId];
-}
+import ConfirmProtectedLink from '../components/ConfirmProtectedLink';
 
 export function RolesList() {
-    const router = useRouter();
-    const [selectedRoleId, setSelectedRoleId] = useSelectedRoleId();
+    const params = useParams();
+
     const [filter, setFilter] = useState('');
     const { data } = useRoles(
         { filter },
@@ -61,12 +40,12 @@ export function RolesList() {
     return (
         <DashboardLayout.Sidebar>
             <div className={styles.List}>
-                <div
+                <ConfirmProtectedLink
                     className={styles.ListItem}
-                    onClick={() => router.push('/dashboard/roles/create')}
+                    href="/dashboard/roles/create"
                 >
                     <span style={{ color: '#000000' }}>+ New role</span>
-                </div>
+                </ConfirmProtectedLink>
                 <input
                     className={styles.ListSearch}
                     type="text"
@@ -75,15 +54,15 @@ export function RolesList() {
                 />
                 <div className={styles.Separator} />
                 {data.map((role: any) => (
-                    <div
+                    <ConfirmProtectedLink
                         className={classNames(styles.ListItem, {
-                            [styles.Selected]: selectedRoleId == role.id,
+                            [styles.Selected]: params.roleId == role.id,
                         })}
                         key={role.id}
-                        onClick={() => setSelectedRoleId(role.id)}
+                        href={`/dashboard/roles/${role.id}`}
                     >
                         <span style={{ color: role.color }}>{role.name}</span>
-                    </div>
+                    </ConfirmProtectedLink>
                 ))}
             </div>
         </DashboardLayout.Sidebar>
