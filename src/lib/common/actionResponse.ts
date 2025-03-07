@@ -20,11 +20,23 @@ export class ActionError extends Error {
     }
 }
 
-export function handleActionResponse<T>(result: ActionResponse<T>) {
+export function handleActionResponse<T>(result: ActionResponse<T>): T {
     if (!result.success) {
         throw new ActionError(result.message, result.status);
     }
     return result.data;
+}
+export async function handleAction<T>(
+    action: Promise<ActionResponse<T>>
+): Promise<T> {
+    return action
+        .catch((e) => {
+            if (e instanceof ActionError) {
+                throw e;
+            }
+            throw new ActionError(e.message, 500);
+        })
+        .then(handleActionResponse);
 }
 
 export function actionResponse<T>(data: T): ActionSuccessResponse<T> {
@@ -44,14 +56,17 @@ export function actionError(
         message,
     };
 }
-actionError.databaseError = () => {
-    if (process.env.NODE_ENV === 'production') {
+actionError.databaseError = (e?: any) => {
+    if (process.env.NODE_ENV !== 'development') {
         return actionError(500, 'Internal server error');
     }
-    return actionError(500, 'Database error');
+    return actionError(
+        500,
+        ['Database error', e?.message].filter(Boolean).join(': ')
+    );
 };
-actionError.internalServerError = () =>
-    actionError(500, 'Internal server error');
+actionError.internalServerError = (message?: string) =>
+    actionError(500, message ?? 'Internal server error');
 actionError.badRequest = (message?: string) =>
     actionError(400, message ?? 'Bad request');
 actionError.unauthorized = (message?: string) =>

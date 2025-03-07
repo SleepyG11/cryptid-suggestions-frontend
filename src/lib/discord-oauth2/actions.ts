@@ -254,9 +254,9 @@ export async function loginFromCode(
 
     try {
         await UserModel.fromDiscordUser(userData);
-    } catch (e) {
-        console.error(e);
-        return actionError.databaseError();
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError(error);
     }
 
     await setSessionCookies(authData, userData.id);
@@ -319,9 +319,9 @@ export async function getOrRefreshAccessToken(): Promise<
         const userData = userDataResult.data;
         try {
             await UserModel.fromDiscordUser(userData);
-        } catch (e) {
-            console.error(e);
-            return actionError.databaseError();
+        } catch (error) {
+            console.error(error);
+            return actionError.databaseError(error);
         }
         await setSessionCookies(authData, userData.id);
 

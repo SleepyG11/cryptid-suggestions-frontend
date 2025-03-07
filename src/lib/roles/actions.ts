@@ -29,7 +29,7 @@ export async function getAllRoles(): Promise<
         return actionResponse(roles.map((role) => role.toJSON()));
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -48,7 +48,7 @@ export async function getRoleById(
         return actionResponse(role ? role.toJSON() : null);
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -72,7 +72,7 @@ export async function createRole(data: {
         return actionResponse(role.toJSON());
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -111,6 +111,6 @@ export async function updateRole(
         return actionResponse(role.toJSON());
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }

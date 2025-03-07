@@ -55,7 +55,7 @@ export async function getLocalUser(): Promise<ActionResponse<any>> {
         );
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -90,7 +90,7 @@ export async function getIsLocalUserHasPermissions(
         return actionResponse(true);
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -109,7 +109,7 @@ export async function getFullLocalUser(): Promise<ActionResponse<any>> {
         return actionResponse(user.get({ plain: true }));
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -128,7 +128,7 @@ export async function getAllUsers(): Promise<ActionResponse<any[]>> {
         return actionResponse(users.map((user) => user.get({ plain: true })));
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
 
@@ -149,6 +149,6 @@ export async function getUser(id: number): Promise<ActionResponse<any>> {
         return actionResponse(user.get({ plain: true }));
     } catch (error) {
         console.error(error);
-        return actionError.databaseError();
+        return actionError.databaseError(error);
     }
 }
