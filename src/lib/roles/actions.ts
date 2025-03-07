@@ -6,7 +6,7 @@ import {
     getIsLocalUserHasPermissions,
     getLocalUser,
 } from '@/lib/users/actions';
-import { Attributes } from 'sequelize';
+import { Attributes, Op } from 'sequelize';
 import { Role } from '@/database/models/User.model';
 import {
     actionError,
@@ -14,18 +14,51 @@ import {
     type ActionResponse,
 } from '../common/actionResponse';
 
-export async function getAllRoles(): Promise<
+// ---------
+
+export async function getPublicRoles(): Promise<
     ActionResponse<Attributes<Role>[]>
 > {
-    const allowed = await getIsLocalUserHasPermissions(
+    try {
+        const roles = await RoleModel.findAll({
+            include: ['id', 'name', 'color', 'order'],
+            order: [
+                ['order', 'DESC'],
+                ['id', 'ASC'],
+            ],
+        });
+        return actionResponse(roles.map((role) => role.toJSON()));
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError(error);
+    }
+}
+
+// ---------
+
+export async function getRoles(options?: {
+    filter?: string;
+}): Promise<ActionResponse<Attributes<Role>[]>> {
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) {
-        return actionError.forbidden();
+    if (!permissionsResponse.success) return permissionsResponse;
+
+    const where: any = {};
+    if (options?.filter) {
+        where.name = {
+            [Op.like]: `%${options.filter}%`,
+        };
     }
 
     try {
-        const roles = await RoleModel.findAll();
+        const roles = await RoleModel.findAll({
+            where,
+            order: [
+                ['order', 'DESC'],
+                ['id', 'ASC'],
+            ],
+        });
         return actionResponse(roles.map((role) => role.toJSON()));
     } catch (error) {
         console.error(error);
@@ -36,12 +69,10 @@ export async function getAllRoles(): Promise<
 export async function getRoleById(
     id: number
 ): Promise<ActionResponse<Attributes<Role> | null>> {
-    const allowed = await getIsLocalUserHasPermissions(
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) {
-        return actionError.forbidden();
-    }
+    if (!permissionsResponse.success) return permissionsResponse;
 
     try {
         const role = await RoleModel.findByPk(id);
@@ -57,12 +88,10 @@ export async function createRole(data: {
     color: number;
     permissions: string;
 }): Promise<ActionResponse<Attributes<Role>>> {
-    const allowed = await getIsLocalUserHasPermissions(
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) {
-        return actionError.forbidden();
-    }
+    if (!permissionsResponse.success) return permissionsResponse;
 
     try {
         const role = await RoleModel.create(data, {
@@ -84,12 +113,10 @@ export async function updateRole(
         permissions: string;
     }
 ): Promise<ActionResponse<Attributes<Role>>> {
-    const allowed = await getIsLocalUserHasPermissions(
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
     );
-    if (!allowed) {
-        return actionError.forbidden();
-    }
+    if (!permissionsResponse.success) return permissionsResponse;
 
     try {
         const role = await RoleModel.findByPk(id);
@@ -114,3 +141,5 @@ export async function updateRole(
         return actionError.databaseError(error);
     }
 }
+
+// ---------

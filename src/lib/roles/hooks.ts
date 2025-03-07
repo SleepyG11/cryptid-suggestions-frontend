@@ -1,38 +1,61 @@
 'use client';
 
 import useSWR from 'swr';
-import { getAllRoles, getRoleById, updateRole, createRole } from './actions';
+import {
+    getRoles,
+    getRoleById,
+    updateRole,
+    createRole,
+    getPublicRoles,
+} from './actions';
 import { mutate } from 'swr';
+import useSWRImmutable from 'swr/immutable';
 import useSWRMutation from 'swr/mutation';
 import type { Attributes } from 'sequelize';
 import { Role } from '@/database/models/User.model';
 import { handleAction } from '../common/actionResponse';
 
-export function useRoles() {
-    return useSWR('/roles', () => handleAction(getAllRoles()), {
-        fallbackData: [],
+// --------
+
+export function revalidateRoles() {
+    mutate((key) => {
+        if (typeof key === 'string') return key.startsWith('/roles/all');
+        return false;
     });
 }
 
+// ---------
+
+export function usePublicRoles() {
+    return useSWRImmutable('/roles/all/public', () =>
+        handleAction(getPublicRoles())
+    );
+}
+
+// ---------
+
+export function useRoles(options?: { filter?: string }) {
+    return useSWR('/roles/all?' + new URLSearchParams(options).toString(), () =>
+        handleAction(getRoles(options))
+    );
+}
+
 export function useRole(roleId?: number | null) {
-    return useSWR<Attributes<Role> | null>(
+    return useSWRImmutable<Attributes<Role> | null>(
         () => (roleId != null ? `/roles/${roleId}` : null),
-        () => handleAction(getRoleById(roleId!)),
-        {
-            revalidateOnFocus: false,
-            revalidateOnReconnect: false,
-        }
+        () => handleAction(getRoleById(roleId!))
     );
 }
 
 export function useCreateRoleMutation() {
     return useSWRMutation(
-        '/roles',
+        '/roles/all?',
         (key: string, { arg }: { arg: any }) => handleAction(createRole(arg)),
         {
-            revalidate: true,
+            revalidate: false,
             populateCache: (newData, currentData) => {
                 mutate('/roles/' + newData.id, newData);
+                revalidateRoles();
             },
         }
     );
@@ -45,7 +68,7 @@ export function useUpdateRoleMutation(roleId?: number | null) {
             handleAction(updateRole(roleId!, arg)),
         {
             onSuccess: () => {
-                mutate('/roles');
+                revalidateRoles();
             },
         }
     );

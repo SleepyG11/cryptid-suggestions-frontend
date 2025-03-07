@@ -17,6 +17,7 @@ import {
     Default,
 } from 'sequelize-typescript';
 import { ConfigModel } from '../sequelize';
+import { RolePermissions } from '@/lib/roles/enums';
 
 @Table({
     tableName: 'roles',
@@ -127,7 +128,7 @@ export class User extends Model {
         type: DataType.VIRTUAL,
         get() {
             const role = this.getDataValue('role');
-            if (!role) return null;
+            if (!role) return BigInt(0).toString();
 
             const allowPermissions = this.getDataValue(
                 'allowPermissionsOverride'
@@ -137,7 +138,7 @@ export class User extends Model {
             );
 
             if (allowPermissions == null || denyPermissions == null)
-                return null;
+                return BigInt(0).toString();
 
             return (
                 (BigInt(role.permissions) | BigInt(allowPermissions)) &
@@ -151,9 +152,13 @@ export class User extends Model {
         if (this.getDataValue('root')) return true;
 
         const userPermissions = BigInt(this.permissions);
-        return permissions.every(
-            (permission) => (userPermissions & BigInt(permission)) !== BigInt(0)
-        );
+
+        if (userPermissions & BigInt(RolePermissions.Administrator))
+            return true;
+
+        return permissions
+            .filter(Boolean)
+            .every((permission) => userPermissions & BigInt(permission));
     }
 
     static async fromDiscordUser(user: any) {

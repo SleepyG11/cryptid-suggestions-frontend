@@ -9,6 +9,7 @@ import {
     actionResponse,
     type ActionResponse,
 } from '../common/actionResponse';
+import { Op } from 'sequelize';
 
 // ---------
 
@@ -115,14 +116,31 @@ export async function getFullLocalUser(): Promise<ActionResponse<any>> {
 
 // ---------
 
-export async function getAllUsers(): Promise<ActionResponse<any[]>> {
-    const allowed = await getIsLocalUserHasPermissions(
+export async function getUsers(options?: {
+    filter?: string;
+    roles?: string[];
+}): Promise<ActionResponse<any[]>> {
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageUsers
     );
-    if (!allowed.success) return allowed;
+    if (!permissionsResponse.success) return permissionsResponse;
+
+    const where: any = {};
+    if (options?.filter) {
+        where.name = {
+            [Op.like]: `%${options.filter}%`,
+        };
+    }
+    if (options?.roles) {
+        where.roleId = {
+            [Op.in]: options.roles,
+        };
+    }
 
     try {
         const users = await UserModel.findAll({
+            where,
+            order: [['id', 'ASC']],
             include: [RoleModel],
         });
         return actionResponse(users.map((user) => user.get({ plain: true })));
@@ -133,10 +151,10 @@ export async function getAllUsers(): Promise<ActionResponse<any[]>> {
 }
 
 export async function getUser(id: number): Promise<ActionResponse<any>> {
-    const allowed = await getIsLocalUserHasPermissions(
+    const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageUsers
     );
-    if (!allowed.success) return allowed;
+    if (!permissionsResponse.success) return permissionsResponse;
 
     try {
         const user = await UserModel.findByPk(id, {
