@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
         remotePatterns: [{ hostname: 'cdn.discordapp.com' }],
     },
     serverExternalPackages: ['pg', 'sequelize-typescript'],
+    webpack(config) {
+        config.ignoreWarnings = [
+            {
+                module: /sequelize/,
+                message: /Module not found|dependency is an expression/,
+            },
+        ];
+        return config;
+    },
 };
 
 export default nextConfig;

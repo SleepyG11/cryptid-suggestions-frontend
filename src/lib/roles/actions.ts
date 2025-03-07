@@ -21,7 +21,7 @@ export async function getPublicRoles(): Promise<
 > {
     try {
         const roles = await RoleModel.findAll({
-            include: ['id', 'name', 'color', 'order'],
+            attributes: ['id', 'name', 'color', 'order'],
             order: [
                 ['order', 'DESC'],
                 ['id', 'ASC'],
@@ -47,7 +47,7 @@ export async function getRoles(options?: {
     const where: any = {};
     if (options?.filter) {
         where.name = {
-            [Op.like]: `%${options.filter}%`,
+            [Op.iLike]: `%${options.filter}%`,
         };
     }
 
@@ -67,7 +67,7 @@ export async function getRoles(options?: {
 }
 
 export async function getRoleById(
-    id: number
+    id: string
 ): Promise<ActionResponse<Attributes<Role> | null>> {
     const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageRoles
@@ -106,7 +106,7 @@ export async function createRole(data: {
 }
 
 export async function updateRole(
-    id: number,
+    id: string,
     data: {
         name: string;
         color: number;

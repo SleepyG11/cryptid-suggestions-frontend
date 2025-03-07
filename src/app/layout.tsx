@@ -20,7 +20,7 @@ export default async function RootLayout({
 
     return (
         <html lang="en">
-            <LayoutClient localUser={localUser}>
+            <LayoutClient localUser={localUser.success ? localUser.data : null}>
                 <body>{children}</body>
             </LayoutClient>
         </html>

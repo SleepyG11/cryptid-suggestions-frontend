@@ -1,6 +1,6 @@
 'use client';
 
-import useSWR, { mutate } from 'swr';
+import useSWR, { mutate, SWRConfiguration } from 'swr';
 import useSWRImmutable from 'swr/immutable';
 import { getLocalUser, getUsers, getUser } from './actions';
 import { handleAction } from '../common/actionResponse';
@@ -25,18 +25,25 @@ export function useLocalUser() {
     });
 }
 
-export function useUsers(options?: { filter?: string; roles?: string[] }) {
+export function useUsers(
+    options?: { filter?: string; roles?: string[] },
+    swrOptions?: SWRConfiguration
+) {
     return useSWR(
         '/users/all?' +
             new URLSearchParams({
                 filter: options?.filter ?? '',
                 roles: options?.roles?.sort().join(',') ?? '',
             }).toString(),
-        () => handleAction(getUsers(options))
+        () => handleAction(getUsers(options)),
+        {
+            fallbackData: [],
+            ...swrOptions,
+        }
     );
 }
 
-export function useUser(userId?: number) {
+export function useUser(userId?: string) {
     return useSWRImmutable(
         () => (userId != null ? `/users/${userId}` : null),
         () => handleAction(getUser(userId!))

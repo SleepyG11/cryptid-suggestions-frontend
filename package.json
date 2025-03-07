@@ -23,6 +23,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
+    "react-select": "^5.10.1",
     "reflect-metadata": "^0.2.2",
     "reset.css": "^2.0.2",
     "sass": "^1.85.0",

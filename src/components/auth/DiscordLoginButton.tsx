@@ -10,8 +10,6 @@ import UserCard from '../user/UserCard';
 export default function DiscordLoginButton() {
     const { data: localUser, isLoading, mutate } = useLocalUser();
 
-    console.log(localUser);
-
     if (localUser)
         return (
             <span className={styles.Logged}>

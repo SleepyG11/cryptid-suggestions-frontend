@@ -6,7 +6,7 @@ export default function LayoutClient({
     localUser,
     children,
 }: {
-    localUser: any;
+    localUser: any | null;
     children: React.ReactNode;
 }) {
     return (

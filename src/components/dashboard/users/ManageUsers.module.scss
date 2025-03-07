@@ -60,6 +60,28 @@
     }
 }
 
+.ListSearch {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 20px;
+    background-color: #ececec;
+    border: solid 1px transparent;
+    outline: none;
+
+    &::placeholder {
+        opacity: 0.5;
+    }
+
+    &:hover {
+        background-color: #dcdcdc;
+    }
+
+    &:focus {
+        background-color: #e3e3e3;
+        border: solid 1px #bababa;
+    }
+}
+
 // ----------
 
 .Content {

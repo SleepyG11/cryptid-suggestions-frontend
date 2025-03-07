@@ -1,22 +1,51 @@
 'use client';
 
-import { createContext, useContext, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import styles from './ManageUsers.module.scss';
 import classNames from 'classnames';
 import DashboardLayout from '../Layout';
+import { getPublicRoles } from '@/lib/roles/actions';
 import { useUsers, useUser } from '@/lib/users/hooks';
 import UserCard from '@/components/user/UserCard';
+import _ from 'lodash';
+import { handleAction } from '@/lib/common/actionResponse';
+import type AsyncReactSelect from 'react-select/async';
+import { useRouter, useParams } from 'next/navigation';
+import { useConfirmModal } from '@/components/confirm-modal/Modal';
+const AsyncSelect = dynamic(() => import('react-select/async'), {
+    ssr: false,
+    loading: () => <div className={styles.ListItem}>Loading...</div>,
+}) as AsyncReactSelect;
 
-const context = createContext<{
-    selectedUserId: number | null;
-    setSelectedUserId: (userId: number | null) => void;
-}>({
-    selectedUserId: null,
-    setSelectedUserId: () => {},
-});
+// -----------
 
-export function ListItem({ user }: { user: any }) {
-    const { selectedUserId, setSelectedUserId } = useContext(context);
+function useSelectedUserId(): [
+    string | undefined,
+    (userId: string, force?: boolean) => void,
+] {
+    const { isOpen, setIsShaking } = useConfirmModal();
+    const params = useParams();
+    const router = useRouter();
+
+    const setSelectedUserId = useCallback(
+        (userId: string, force?: boolean) => {
+            if (force || !isOpen) {
+                router.push(`/dashboard/users/${userId}`);
+            } else {
+                setIsShaking(true);
+            }
+        },
+        [router, isOpen, setIsShaking]
+    );
+
+    return [params.userId as string | undefined, setSelectedUserId];
+}
+
+// -----------
+
+function ListItem({ user }: { user: any }) {
+    const [selectedUserId, setSelectedUserId] = useSelectedUserId();
 
     return (
         <div
@@ -34,58 +63,89 @@ export function ListItem({ user }: { user: any }) {
         </div>
     );
 }
-export function List() {
-    const { data } = useUsers();
+
+// -----------
+
+export function UsersList() {
+    const [filter, setFilter] = useState('');
+    const [roles, setRoles] = useState<string[]>([]);
+    const { data } = useUsers(
+        { filter, roles },
+        {
+            keepPreviousData: true,
+        }
+    );
+
+    const updateFilter = useMemo(
+        () =>
+            _.debounce((value: string) => {
+                setFilter(value);
+            }, 300),
+        [setFilter]
+    );
 
     return (
-        <div className={styles.List}>
-            {data.map((user: any) => (
-                <ListItem key={user.id} user={user} />
-            ))}
-        </div>
+        <DashboardLayout.Sidebar>
+            <div className={styles.List}>
+                <input
+                    className={styles.ListSearch}
+                    type="text"
+                    placeholder="Search"
+                    onChange={(e) => updateFilter(e.target.value)}
+                />
+                <AsyncSelect
+                    id={'user-roles-search'}
+                    loadOptions={async () => {
+                        const roles = await handleAction(getPublicRoles());
+                        return roles.map((role: any) => ({
+                            value: role.id,
+                            label: role.name,
+                            color: role.color,
+                        }));
+                    }}
+                    defaultOptions
+                    cacheOptions
+                    isMulti
+                    placeholder="With roles..."
+                    onChange={(options) => {
+                        setRoles(
+                            options?.map((option: any) =>
+                                String(option.value)
+                            ) ?? []
+                        );
+                    }}
+                    styles={{
+                        option: (styles, { data }) => ({
+                            ...styles,
+                            color: data.color,
+                        }),
+                    }}
+                />
+                <div className={styles.Separator} />
+                {data.map((user: any) => (
+                    <ListItem key={user.id} user={user} />
+                ))}
+            </div>
+        </DashboardLayout.Sidebar>
     );
 }
 
-export function UserInfo() {
-    const { selectedUserId } = useContext(context);
-    const { data, isLoading } = useUser(selectedUserId ?? undefined);
-
-    if (isLoading) return <div>Loading...</div>;
-    if (!data) return <div>No user selected</div>;
+export function UserInfo({ userId }: { userId: string }) {
+    const { data } = useUser(userId);
 
     return (
-        <div>
+        <DashboardLayout.Content>
             <div>
-                <h1>{data.username}</h1>
-                <p>{data.role?.name}</p>
-                <p>{data.role?.hexColor}</p>
-            </div>
-            {/* <PermissionsList
+                <div>
+                    <h1>{data?.username}</h1>
+                    <p>{data?.role?.name}</p>
+                    <p>{data?.role?.color}</p>
+                </div>
+                {/* <PermissionsList
                 permissions={data.permissions}
                 definition={RolePermissionsDefinition}
             /> */}
-        </div>
-    );
-}
-
-export default function ManageRoles() {
-    const [selectedUserId, setSelectedUserId] = useState<any>(null);
-
-    let content;
-    if (selectedUserId == -1) {
-        content = <div>Create new user</div>;
-    } else if (selectedUserId != null) {
-        content = <UserInfo />;
-    } else {
-        content = <div>Skeleton</div>;
-    }
-
-    return (
-        <context.Provider value={{ selectedUserId, setSelectedUserId }}>
-            <DashboardLayout.Sidebar>
-                <List />
-            </DashboardLayout.Sidebar>
-            <DashboardLayout.Content>{content}</DashboardLayout.Content>
-        </context.Provider>
+            </div>
+        </DashboardLayout.Content>
     );
 }

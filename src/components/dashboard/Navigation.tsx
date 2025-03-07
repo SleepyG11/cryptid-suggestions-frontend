@@ -35,7 +35,7 @@ function Item({ label, href }: { label: string; href: string }) {
         <Link
             href={href}
             className={classNames(styles.Item, {
-                [styles.Active]: pathname === href,
+                [styles.Active]: pathname.startsWith(href),
             })}
         >
             {label}

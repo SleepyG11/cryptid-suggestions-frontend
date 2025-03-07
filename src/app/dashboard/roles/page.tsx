@@ -1,5 +1,5 @@
-import ManageRoles from '@/components/dashboard/roles/ManageRoles';
+import DashboardLayout from '@/components/dashboard/Layout';
 
 export default function Page() {
-    return <ManageRoles />;
+    return <DashboardLayout.Content>Roles</DashboardLayout.Content>;
 }

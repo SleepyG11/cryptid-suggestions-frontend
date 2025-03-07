@@ -1,6 +1,6 @@
 'use client';
 
-import useSWR from 'swr';
+import useSWR, { SWRConfiguration } from 'swr';
 import {
     getRoles,
     getRoleById,
@@ -26,21 +26,34 @@ export function revalidateRoles() {
 
 // ---------
 
-export function usePublicRoles() {
-    return useSWRImmutable('/roles/all/public', () =>
-        handleAction(getPublicRoles())
+export function usePublicRoles(swrOptions?: SWRConfiguration) {
+    return useSWRImmutable(
+        '/roles/all/public',
+        () => handleAction(getPublicRoles()),
+        {
+            fallbackData: [],
+            ...swrOptions,
+        }
     );
 }
 
 // ---------
 
-export function useRoles(options?: { filter?: string }) {
-    return useSWR('/roles/all?' + new URLSearchParams(options).toString(), () =>
-        handleAction(getRoles(options))
+export function useRoles(
+    options?: { filter?: string },
+    swrOptions?: SWRConfiguration
+) {
+    return useSWR(
+        '/roles/all?' + new URLSearchParams(options).toString(),
+        () => handleAction(getRoles(options)),
+        {
+            fallbackData: [],
+            ...swrOptions,
+        }
     );
 }
 
-export function useRole(roleId?: number | null) {
+export function useRole(roleId?: string | null) {
     return useSWRImmutable<Attributes<Role> | null>(
         () => (roleId != null ? `/roles/${roleId}` : null),
         () => handleAction(getRoleById(roleId!))
@@ -61,7 +74,7 @@ export function useCreateRoleMutation() {
     );
 }
 
-export function useUpdateRoleMutation(roleId?: number | null) {
+export function useUpdateRoleMutation(roleId?: string | null) {
     return useSWRMutation(
         () => (roleId != null ? `/roles/${roleId}` : null),
         (key: string, { arg }: { arg: any }) =>

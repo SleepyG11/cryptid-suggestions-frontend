@@ -71,18 +71,14 @@ export async function getIsLocalUserHasPermissions(
             include: [
                 {
                     model: RoleModel,
-                    attributes: {
-                        include: ['permissions'],
-                    },
+                    attributes: ['permissions'],
                 },
             ],
-            attributes: {
-                include: [
-                    'allowPermissionsOverride',
-                    'denyPermissionsOverride',
-                    'root',
-                ],
-            },
+            attributes: [
+                'allowPermissionsOverride',
+                'denyPermissionsOverride',
+                'root',
+            ],
         });
         if (!user || !user.hasPermissions(...permissions)) {
             return actionError.forbidden();
@@ -127,11 +123,20 @@ export async function getUsers(options?: {
 
     const where: any = {};
     if (options?.filter) {
-        where.name = {
-            [Op.like]: `%${options.filter}%`,
-        };
+        where[Op.or] = [
+            {
+                username: {
+                    [Op.iLike]: `%${options.filter}%`,
+                },
+            },
+            {
+                displayName: {
+                    [Op.iLike]: `%${options.filter}%`,
+                },
+            },
+        ];
     }
-    if (options?.roles) {
+    if (options?.roles?.length) {
         where.roleId = {
             [Op.in]: options.roles,
         };
@@ -150,7 +155,7 @@ export async function getUsers(options?: {
     }
 }
 
-export async function getUser(id: number): Promise<ActionResponse<any>> {
+export async function getUser(id: string): Promise<ActionResponse<any>> {
     const permissionsResponse = await getIsLocalUserHasPermissions(
         RolePermissions.ManageUsers
     );
