@@ -2,8 +2,14 @@
 
 import useSWR, { mutate, SWRConfiguration } from 'swr';
 import useSWRImmutable from 'swr/immutable';
-import { getLocalUser, getUsers, getUser } from './actions';
+import {
+    getLocalUser,
+    getUsers,
+    getUser,
+    updateUserPermissionsOverrides,
+} from './actions';
 import { handleAction } from '../common/actionResponse';
+import useSWRMutation from 'swr/mutation';
 
 // --------
 
@@ -47,5 +53,22 @@ export function useUser(userId?: string) {
     return useSWRImmutable(
         () => (userId != null ? `/users/${userId}` : null),
         () => handleAction(getUser(userId!))
+    );
+}
+
+export function useUpdateUserPermissionsOverridesMutation(userId?: string) {
+    const { data: localUser, mutate } = useLocalUser();
+    return useSWRMutation(
+        () => (userId != null ? `/users/${userId}` : null),
+        (key: string, { arg }: { arg: any }) =>
+            handleAction(updateUserPermissionsOverrides(userId!, arg)),
+        {
+            onSuccess: () => {
+                revalidateUsers();
+                if (localUser?.id === userId) {
+                    mutate(undefined, { revalidate: true });
+                }
+            },
+        }
     );
 }

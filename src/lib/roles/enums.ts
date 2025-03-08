@@ -6,7 +6,7 @@ export enum RolePermissions {
     ManageRoles = 2 ** 3,
 
     ManageUsers = 2 ** 4,
-    ManageUserRoles = 2 ** 5,
+    ManageUserRolesAndPermissions = 2 ** 5,
     ModerateUsers = 2 ** 6,
 
     ViewSubmissions = 2 ** 7,
@@ -25,7 +25,7 @@ export enum RolePermissions {
     ManageSubmissionComments = 2 ** 19,
 
     ManageWebhooks = 2 ** 20,
-    ManageConfig = 2 ** 21,
+    ManageConfigs = 2 ** 21,
 
     AttachFiles = 2 ** 22,
 }
@@ -69,10 +69,10 @@ export const RolePermissionsDefinition = {
                     value: RolePermissions.ManageUsers,
                 },
                 {
-                    name: 'Manage User Roles',
+                    name: 'Manage User Roles and Permissions',
                     description:
-                        'Allow manage users roles (only lower than that role)',
-                    value: RolePermissions.ManageUserRoles,
+                        'Allow manage user roles (only lower than that role) and permissions',
+                    value: RolePermissions.ManageUserRolesAndPermissions,
                 },
                 {
                     name: 'Moderation',
@@ -174,9 +174,9 @@ export const RolePermissionsDefinition = {
             description: 'Permissions related to config',
             permissions: [
                 {
-                    name: 'Manage Config',
-                    description: 'Allow manage config',
-                    value: RolePermissions.ManageConfig,
+                    name: 'Manage Configs',
+                    description: 'Allow manage site configs',
+                    value: RolePermissions.ManageConfigs,
                 },
             ],
         },

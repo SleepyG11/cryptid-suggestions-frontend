@@ -65,8 +65,15 @@ actionError.databaseError = (e?: any) => {
         ['Database error', e?.message].filter(Boolean).join(': ')
     );
 };
-actionError.internalServerError = (message?: string) =>
-    actionError(500, message ?? 'Internal server error');
+actionError.internalServerError = (e?: any) => {
+    if (process.env.NODE_ENV !== 'development') {
+        return actionError(500, 'Internal server error');
+    }
+    return actionError(
+        500,
+        ['Internal server error', e?.message].filter(Boolean).join(': ')
+    );
+};
 actionError.badRequest = (message?: string) =>
     actionError(400, message ?? 'Bad request');
 actionError.unauthorized = (message?: string) =>

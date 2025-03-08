@@ -16,7 +16,7 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const localUser = await getLocalUser();
+    const localUser = await getLocalUser(true);
 
     return (
         <html lang="en">

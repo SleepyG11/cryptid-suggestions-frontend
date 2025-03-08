@@ -13,8 +13,10 @@ import { Op } from 'sequelize';
 
 // ---------
 
-export async function getLocalUser(): Promise<ActionResponse<any>> {
-    const accessData = await getOrRefreshAccessToken();
+export async function getLocalUser(
+    readOnly: boolean = false
+): Promise<ActionResponse<any>> {
+    const accessData = await getOrRefreshAccessToken(readOnly);
     if (!accessData.success) return accessData;
 
     try {
@@ -168,6 +170,36 @@ export async function getUser(id: string): Promise<ActionResponse<any>> {
         if (!user) {
             return actionError.notFound('User not found');
         }
+
+        return actionResponse(user.get({ plain: true }));
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError(error);
+    }
+}
+
+export async function updateUserPermissionsOverrides(
+    id: string,
+    permissions: {
+        allow: string;
+        deny: string;
+    }
+): Promise<ActionResponse<any>> {
+    const permissionsResponse = await getIsLocalUserHasPermissions(
+        RolePermissions.ManageUsers
+    );
+    if (!permissionsResponse.success) return permissionsResponse;
+
+    try {
+        const user = await UserModel.findByPk(id);
+        if (!user) {
+            return actionError.notFound('User not found');
+        }
+
+        await user.update({
+            allowPermissionsOverride: permissions.allow,
+            denyPermissionsOverride: permissions.deny,
+        });
 
         return actionResponse(user.get({ plain: true }));
     } catch (error) {

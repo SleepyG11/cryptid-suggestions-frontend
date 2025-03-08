@@ -14,6 +14,7 @@ import useSWRMutation from 'swr/mutation';
 import type { Attributes } from 'sequelize';
 import { Role } from '@/database/models/User.model';
 import { handleAction } from '../common/actionResponse';
+import { useLocalUser } from '../users/hooks';
 
 // --------
 
@@ -75,6 +76,8 @@ export function useCreateRoleMutation() {
 }
 
 export function useUpdateRoleMutation(roleId?: string | null) {
+    const { data: localUser, mutate } = useLocalUser();
+
     return useSWRMutation(
         () => (roleId != null ? `/roles/${roleId}` : null),
         (key: string, { arg }: { arg: any }) =>
@@ -82,6 +85,9 @@ export function useUpdateRoleMutation(roleId?: string | null) {
         {
             onSuccess: () => {
                 revalidateRoles();
+                if ((localUser?.roleId || localUser?.role?.id) == roleId) {
+                    mutate(undefined, { revalidate: true });
+                }
             },
         }
     );

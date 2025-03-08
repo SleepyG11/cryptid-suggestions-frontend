@@ -10,19 +10,20 @@ export type PermissionListChangeEvent = {
     newPermissions: bigint;
 };
 
-export function Item({
+function Item({
     permissionDefinition,
     permissions,
     onChange = () => {},
+    readOnly = false,
 }: {
     permissionDefinition: any;
-    permissions: any;
+    permissions: string | number | bigint;
     onChange?: (event: PermissionListChangeEvent) => void;
+    readOnly?: boolean;
 }) {
-    const isOn =
-        permissions &&
-        (BigInt(permissions) & BigInt(permissionDefinition.value)) !==
-            BigInt(0);
+    const isOn = Boolean(
+        permissions && BigInt(permissions) & BigInt(permissionDefinition.value)
+    );
 
     return (
         <div className={styles.Item}>
@@ -35,9 +36,10 @@ export function Item({
             <label className={styles.Switch}>
                 <input
                     type="checkbox"
-                    checked={isOn}
+                    checked={Boolean(isOn)}
+                    readOnly={readOnly}
                     onChange={(e) => {
-                        const oldValue = isOn;
+                        const oldValue = !!isOn;
                         const newValue = !isOn;
                         const oldPermissions = BigInt(permissions);
                         const newPermissions =
@@ -58,14 +60,16 @@ export function Item({
     );
 }
 
-export function Group({
+function Group({
     permissions,
     groupDefinition,
     onChange = () => {},
+    readOnly = false,
 }: {
-    permissions: any;
+    permissions: string | number | bigint;
     groupDefinition: any;
     onChange?: (event: PermissionListChangeEvent) => void;
+    readOnly?: boolean;
 }) {
     return (
         <div className={styles.Group}>
@@ -78,6 +82,7 @@ export function Group({
                         permissionDefinition={permission}
                         permissions={permissions}
                         onChange={onChange}
+                        readOnly={readOnly}
                     />
                 ))}
             </div>
@@ -85,13 +90,15 @@ export function Group({
     );
 }
 export default function PermissionsList({
-    permissions,
+    permissions = BigInt(0),
     definition,
     onChange = () => {},
+    readOnly = false,
 }: {
-    permissions: any;
+    permissions: string | number | bigint;
     definition: any;
     onChange?: (event: PermissionListChangeEvent) => void;
+    readOnly?: boolean;
 }) {
     return (
         <div className={styles.List}>
@@ -101,6 +108,7 @@ export default function PermissionsList({
                     groupDefinition={group}
                     permissions={permissions}
                     onChange={onChange}
+                    readOnly={readOnly}
                 />
             ))}
         </div>

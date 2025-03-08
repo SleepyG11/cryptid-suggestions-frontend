@@ -6,8 +6,6 @@ import {
     DISCORD_API_URL,
     DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET,
-    DISCORD_OAUTH2_SCOPE,
-    DISCORD_OAUTH2_URL,
     DISCORD_REFRESH_TOKEN_COOKIE,
 } from './constants';
 import type {
@@ -136,11 +134,11 @@ export async function exchangeOauthCode(
                 'Content-Type': 'application/x-www-form-urlencoded',
                 Authorization: `Basic ${Buffer.from(`${DISCORD_CLIENT_ID}:${DISCORD_CLIENT_SECRET}`).toString('base64')}`,
             },
-            body: searchParams.toString(),
+            body: searchParams,
         }).then((r) => r.json());
-    } catch (e) {
-        console.error(e);
-        return actionError.internalServerError();
+    } catch (error) {
+        console.error(error);
+        return actionError.internalServerError(error);
     }
 
     if (!exchangeData.access_token) {
@@ -163,12 +161,13 @@ export async function exchangeRefreshToken(
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: `Basic ${Buffer.from(`${DISCORD_CLIENT_ID}:${DISCORD_CLIENT_SECRET}`).toString('base64')}`,
             },
-            body: searchParams.toString(),
+            body: searchParams,
         }).then((r) => r.json());
-    } catch (e) {
-        console.error(e);
-        return actionError.internalServerError();
+    } catch (error) {
+        console.error(error);
+        return actionError.internalServerError(error);
     }
 
     if (!exchangeData.access_token) {
@@ -190,13 +189,9 @@ export async function revokeToken(
             },
             body: new URLSearchParams({ token, token_type_hint: type }),
         });
-    } catch (e) {
-        console.error(e);
-        return {
-            success: false,
-            status: 500,
-            message: 'Internal server error',
-        };
+    } catch (error) {
+        console.error(error);
+        return actionError.internalServerError(error);
     }
 
     if (!response.ok) {
@@ -218,9 +213,9 @@ export async function getDiscordUser(
                 Authorization: `Bearer ${accessToken}`,
             },
         });
-    } catch (e) {
-        console.error(e);
-        return actionError.internalServerError();
+    } catch (error) {
+        console.error(error);
+        return actionError.internalServerError(error);
     }
 
     if (!userResponse.ok) {
@@ -290,9 +285,9 @@ export async function logout() {
     cookieStore.delete(DISCORD_ACCESS_TOKEN_COOKIE);
     cookieStore.delete(DISCORD_REFRESH_TOKEN_COOKIE);
 }
-export async function getOrRefreshAccessToken(): Promise<
-    ActionResponse<AccessJWTTokenPayload>
-> {
+export async function getOrRefreshAccessToken(
+    readOnly: boolean = false
+): Promise<ActionResponse<AccessJWTTokenPayload>> {
     const cookieStore = await cookies();
     const accessData = await verifyAccessJWTToken(
         cookieStore.get(DISCORD_ACCESS_TOKEN_COOKIE)?.value
@@ -304,7 +299,8 @@ export async function getOrRefreshAccessToken(): Promise<
     const refreshData = await verifyRefreshJWTToken(
         cookieStore.get(DISCORD_REFRESH_TOKEN_COOKIE)?.value
     );
-    if (refreshData) {
+
+    if (refreshData && !readOnly) {
         const authDataResult = await exchangeRefreshToken(refreshData.refresh);
         if (!authDataResult.success) return authDataResult;
 

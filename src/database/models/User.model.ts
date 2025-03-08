@@ -17,7 +17,7 @@ import {
     Default,
 } from 'sequelize-typescript';
 import { ConfigModel } from '../sequelize';
-import { RolePermissions } from '@/lib/roles/enums';
+import { isUserHasPermissions } from '@/lib/users/utilities';
 
 @Table({
     tableName: 'roles',
@@ -149,16 +149,7 @@ export class User extends Model {
     permissions: string;
 
     hasPermissions(...permissions: (bigint | number | string)[]) {
-        if (this.getDataValue('root')) return true;
-
-        const userPermissions = BigInt(this.permissions);
-
-        if (userPermissions & BigInt(RolePermissions.Administrator))
-            return true;
-
-        return permissions
-            .filter(Boolean)
-            .every((permission) => userPermissions & BigInt(permission));
+        return isUserHasPermissions(this, ...permissions);
     }
 
     static async fromDiscordUser(user: any) {

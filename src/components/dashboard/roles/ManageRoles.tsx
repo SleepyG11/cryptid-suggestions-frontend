@@ -20,12 +20,19 @@ import ConfirmProtectedLink from '../components/ConfirmProtectedLink';
 
 export function RolesList() {
     const params = useParams();
+    const router = useRouter();
 
     const [filter, setFilter] = useState('');
-    const { data } = useRoles(
+    const { data, mutate } = useRoles(
         { filter },
         {
-            keepPreviousData: true,
+            revalidateOnMount: true,
+            onError(err, key, config) {
+                if (err.status === 403) {
+                    router.replace('/dashboard');
+                    mutate(undefined, { revalidate: false });
+                }
+            },
         }
     );
 
@@ -121,11 +128,7 @@ export function RoleInfo({ roleId }: { roleId: string }) {
 
     return (
         <DashboardLayout.Content>
-            <div
-                className={classNames(styles.RoleInfo, {
-                    [styles.Loading]: isLoading || isMutating,
-                })}
-            >
+            <div className={styles.RoleInfo}>
                 <h2>Role info</h2>
                 <h3>Name</h3>
                 <Controller

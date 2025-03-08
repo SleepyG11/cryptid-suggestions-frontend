@@ -1,4 +1,4 @@
-import { UserInfo } from '@/components/dashboard/users/ManagerUsers';
+import { UserInfo } from '@/components/dashboard/users/ManageUsers';
 
 export default async function Page({
     params,
