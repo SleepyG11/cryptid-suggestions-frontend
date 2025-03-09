@@ -1,0 +1,24 @@
+.Nav {
+    margin: 0 auto;
+    text-align: center;
+
+    &>ul {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+
+        &>li {
+            &>a {
+                text-decoration: none;
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 500;
+                transition: color 0.3s ease;
+
+                &:hover {
+                    color: #538cf7;
+                }
+            }
+        }
+    }
+}

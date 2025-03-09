@@ -1,12 +1,16 @@
 'use client';
 
-// import { Suspense, lazy } from 'react';
-// const Shader = lazy(async () => {
-//     const shaders = await import('react-shaders');
-//     return {
-//         default: shaders.Shader,
-//     };
-// });
+import { Suspense, lazy, useState } from 'react';
+import Image from 'next/image';
+const Shader = lazy(async () => {
+    const shaders = await import('react-shaders');
+    return {
+        default: shaders.Shader,
+    };
+});
+
+import styles from './BalatroShader.module.scss';
+import classNames from 'classnames';
 
 // Original shader code
 
@@ -123,10 +127,43 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 `;
 
 export default function BalatroShaderBackground() {
+    const [isLoading, setIsLoading] = useState(true);
+
     return (
-        <></>
-        // <Suspense fallback={<div>Loading...</div>}>
-        //     <Shader fs={shaderText} />
-        // </Suspense>
+        <div
+            className={classNames(
+                styles.Container,
+                isLoading && styles.Loading
+            )}
+        >
+            <Suspense
+                fallback={
+                    <Image
+                        src="/images/bg-fallback.png"
+                        alt="Loading..."
+                        height={960}
+                        width={540}
+                    />
+                }
+            >
+                <Image
+                    src="/images/bg-fallback.png"
+                    alt="Loading..."
+                    height={960}
+                    width={540}
+                />
+                <Shader
+                    fs={shaderText}
+                    clearColor={[0, 0, 0, 0]}
+                    onDoneLoadingTextures={() => setIsLoading(false)}
+                    style={
+                        {
+                            height: '100vh',
+                            width: '100vw',
+                        } as any
+                    }
+                />
+            </Suspense>
+        </div>
     );
 }
