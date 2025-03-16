@@ -12,14 +12,7 @@ import {
     Default,
 } from 'sequelize-typescript';
 
-export enum ConfigType {
-    String = 'string',
-    Integer = 'integer',
-    Float = 'float',
-    Boolean = 'boolean',
-    Date = 'date',
-}
-
+import { ConfigType } from '@/lib/configs/enums';
 @Table({
     tableName: 'configs',
     timestamps: true,
@@ -75,6 +68,32 @@ export class Config extends Model {
                     return new Date(rawValue);
                 default:
                     return rawValue;
+            }
+        },
+        set(value: any) {
+            if (value == null) {
+                this.setDataValue('value', null);
+                return;
+            }
+            switch (this.getDataValue('type')) {
+                case ConfigType.String:
+                    this.setDataValue('value', String(value));
+                    break;
+                case ConfigType.Integer:
+                    this.setDataValue('value', parseInt(value).toString());
+                    break;
+                case ConfigType.Float:
+                    this.setDataValue('value', parseFloat(value).toString());
+                    break;
+                case ConfigType.Boolean:
+                    this.setDataValue('value', Boolean(value).toString());
+                    break;
+                case ConfigType.Date:
+                    this.setDataValue('value', new Date(value).toISOString());
+                    break;
+                default:
+                    this.setDataValue('value', String(value));
+                    break;
             }
         },
     })

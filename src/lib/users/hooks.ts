@@ -60,7 +60,7 @@ export function useUpdateUserPermissionsOverridesMutation(userId?: string) {
     const { data: localUser, mutate } = useLocalUser();
     return useSWRMutation(
         () => (userId != null ? `/users/${userId}` : null),
-        (key: string, { arg }: { arg: any }) =>
+        (_: string, { arg }: { arg: any }) =>
             handleAction(updateUserPermissionsOverrides(userId!, arg)),
         {
             onSuccess: () => {

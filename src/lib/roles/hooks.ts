@@ -64,7 +64,7 @@ export function useRole(roleId?: string | null) {
 export function useCreateRoleMutation() {
     return useSWRMutation(
         '/roles/all?',
-        (key: string, { arg }: { arg: any }) => handleAction(createRole(arg)),
+        (_: string, { arg }: { arg: any }) => handleAction(createRole(arg)),
         {
             revalidate: false,
             populateCache: (newData, currentData) => {
@@ -80,7 +80,7 @@ export function useUpdateRoleMutation(roleId?: string | null) {
 
     return useSWRMutation(
         () => (roleId != null ? `/roles/${roleId}` : null),
-        (key: string, { arg }: { arg: any }) =>
+        (_: string, { arg }: { arg: any }) =>
             handleAction(updateRole(roleId!, arg)),
         {
             onSuccess: () => {

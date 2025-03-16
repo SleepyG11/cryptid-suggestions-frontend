@@ -27,7 +27,7 @@ export async function getPublicRoles(): Promise<
                 ['id', 'ASC'],
             ],
         });
-        return actionResponse(roles.map((role) => role.toJSON()));
+        return actionResponse(roles.map((role) => role.get({ plain: true })));
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);
@@ -59,7 +59,7 @@ export async function getRoles(options?: {
                 ['id', 'ASC'],
             ],
         });
-        return actionResponse(roles.map((role) => role.toJSON()));
+        return actionResponse(roles.map((role) => role.get({ plain: true })));
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);
@@ -76,7 +76,7 @@ export async function getRoleById(
 
     try {
         const role = await RoleModel.findByPk(id);
-        return actionResponse(role ? role.toJSON() : null);
+        return actionResponse(role ? role.get({ plain: true }) : null);
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);
@@ -98,7 +98,7 @@ export async function createRole(data: {
             fields: ['name', 'color', 'permissions'],
             returning: true,
         });
-        return actionResponse(role.toJSON());
+        return actionResponse(role.get({ plain: true }));
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);
@@ -135,7 +135,7 @@ export async function updateRole(
                 omitNull: true,
             }
         );
-        return actionResponse(role.toJSON());
+        return actionResponse(role.get({ plain: true }));
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);

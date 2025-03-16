@@ -6,6 +6,8 @@ import pg from 'pg';
 
 import { Config } from './models/Config.model';
 import { Role, User } from './models/User.model';
+import { RolePermissions } from '@/lib/roles/enums';
+import { ConfigType } from '@/lib/configs/enums';
 
 const sequelize = new Sequelize({
     dialect: process.env.DATABASE_DIALECT as Dialect,
@@ -20,7 +22,43 @@ const sequelize = new Sequelize({
 
 sequelize.addModels([User, Role, Config]);
 
-await sequelize.sync();
+await sequelize.sync().then(async () => {
+    await Promise.all([
+        Role.findOrCreate({
+            where: {
+                id: 0,
+            },
+            defaults: {
+                name: 'Default',
+                color: 0x000000,
+                deletable: false,
+                permissions:
+                    RolePermissions.ViewSubmissions |
+                    RolePermissions.CreateSubmissions |
+                    RolePermissions.VoteForSubmissions |
+                    RolePermissions.ViewSubmissionComments |
+                    RolePermissions.CreateSubmissionComments |
+                    RolePermissions.AttachFiles,
+            },
+            returning: false,
+        }),
+        Config.bulkCreate(
+            [
+                {
+                    key: 'default_role_id',
+                    value: '0',
+                    type: ConfigType.Integer,
+                    public: true,
+                    deletable: false,
+                },
+            ],
+            {
+                ignoreDuplicates: true,
+                returning: false,
+            }
+        ),
+    ]);
+});
 
 export const UserModel = User;
 export const RoleModel = Role;
