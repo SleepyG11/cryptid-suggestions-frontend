@@ -5,8 +5,17 @@ import DashboardLayout from '../Layout';
 import styles from './ManageConfigs.module.scss';
 import { useConfigs } from '@/lib/configs/hooks';
 import DashboardEditConfigModal from '@/components/modals/dashboard/EditConfig';
+import DashboardDeleteConfigModal from '@/components/modals/dashboard/DeleteConfig';
 
-function ConfigRow({ config, onEdit }: { config: any; onEdit: () => void }) {
+function ConfigRow({
+    config,
+    onEdit,
+    onDelete,
+}: {
+    config: any;
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
     return (
         <tr key={config.key}>
             <td className={styles.RowCheckbox}>
@@ -22,23 +31,43 @@ function ConfigRow({ config, onEdit }: { config: any; onEdit: () => void }) {
                 {new Date(config.updatedAt).toLocaleString()}
             </td>
             <td className={styles.RowActions}>
-                <button onClick={onEdit}>Edit</button>
-                <button>Delete</button>
+                <button onClick={onEdit} disabled={!config.editable}>
+                    Edit
+                </button>
+                <button
+                    onClick={onDelete}
+                    disabled={false && !config.deletable}
+                >
+                    Delete
+                </button>
             </td>
         </tr>
     );
 }
 
 export default function ManageConfigs() {
-    const [configKey, setConfigKey] = useState<string | null>(null);
+    const [configActions, setConfigAction] = useState({
+        type: 'none',
+        key: null,
+    });
     const { data, isLoading, error } = useConfigs();
 
     return (
         <DashboardLayout.Content>
             <DashboardEditConfigModal
-                configKey={configKey}
-                onClose={() => setConfigKey(null)}
+                configKey={
+                    configActions.type === 'edit' ? configActions.key : null
+                }
+                onClose={() => setConfigAction({ type: 'none', key: null })}
                 onSave={() => {}}
+                onError={() => {}}
+            />
+            <DashboardDeleteConfigModal
+                configKey={
+                    configActions.type === 'delete' ? configActions.key : null
+                }
+                onClose={() => setConfigAction({ type: 'none', key: null })}
+                onDelete={() => {}}
                 onError={() => {}}
             />
             <table className={styles.Table}>
@@ -67,7 +96,18 @@ export default function ManageConfigs() {
                             <ConfigRow
                                 key={config.key}
                                 config={config}
-                                onEdit={() => setConfigKey(config.key)}
+                                onEdit={() =>
+                                    setConfigAction({
+                                        type: 'edit',
+                                        key: config.key,
+                                    })
+                                }
+                                onDelete={() =>
+                                    setConfigAction({
+                                        type: 'delete',
+                                        key: config.key,
+                                    })
+                                }
                             />
                         ))
                     )}

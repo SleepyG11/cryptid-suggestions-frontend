@@ -28,14 +28,10 @@ export function revalidateRoles() {
 // ---------
 
 export function usePublicRoles(swrOptions?: SWRConfiguration) {
-    return useSWRImmutable(
-        '/roles/all/public',
-        () => handleAction(getPublicRoles()),
-        {
-            fallbackData: [],
-            ...swrOptions,
-        }
-    );
+    return useSWR('/roles/all/public', () => handleAction(getPublicRoles()), {
+        fallbackData: [],
+        ...swrOptions,
+    });
 }
 
 // ---------

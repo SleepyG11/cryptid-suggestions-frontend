@@ -148,6 +148,7 @@ export default function OverridePermissionsList({
     definition,
     onChange = () => {},
     readOnly = false,
+    isRoot = false,
 }: {
     permissions: {
         allow: string | number | bigint;
@@ -156,6 +157,7 @@ export default function OverridePermissionsList({
     definition: any;
     onChange?: (event: OverridePermissionListChangeEvent) => void;
     readOnly?: boolean;
+    isRoot?: boolean;
 }) {
     permissions = _.defaults(permissions, {
         allow: BigInt(0),
@@ -163,6 +165,11 @@ export default function OverridePermissionsList({
     });
     return (
         <div className={styles.List}>
+            {isRoot && (
+                <div className={styles.Root}>
+                    <p>Root user</p>
+                </div>
+            )}
             {definition.groups.map((group: any) => (
                 <OverrideGroup
                     key={group.name}

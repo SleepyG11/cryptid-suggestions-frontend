@@ -186,20 +186,60 @@ export async function updateUserPermissionsOverrides(
     }
 ): Promise<ActionResponse<any>> {
     const permissionsResponse = await getIsLocalUserHasPermissions(
-        RolePermissions.ManageUsers
+        RolePermissions.ManageUsers,
+        RolePermissions.ManageUserRolesAndPermissions
     );
     if (!permissionsResponse.success) return permissionsResponse;
 
     try {
-        const user = await UserModel.findByPk(id);
+        const user = await UserModel.findByPk(id, {
+            include: [RoleModel],
+        });
         if (!user) {
             return actionError.notFound('User not found');
         }
 
         await user.update({
-            allowPermissionsOverride: permissions.allow,
-            denyPermissionsOverride: permissions.deny,
+            allowPermissionsOverride: permissions.allow ?? '0',
+            denyPermissionsOverride: permissions.deny ?? '0',
         });
+
+        return actionResponse(user.get({ plain: true }));
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError(error);
+    }
+}
+
+export async function updateUserRole(
+    id: string,
+    roleId: string
+): Promise<ActionResponse<any>> {
+    const permissionsResponse = await getIsLocalUserHasPermissions(
+        RolePermissions.ManageUsers,
+        RolePermissions.ManageUserRolesAndPermissions
+    );
+    if (!permissionsResponse.success) return permissionsResponse;
+
+    try {
+        const [user, role] = await Promise.all([
+            UserModel.findByPk(id, {
+                include: [RoleModel],
+            }),
+            RoleModel.findByPk(roleId),
+        ]);
+        if (!user) {
+            return actionError.notFound('User not found');
+        }
+        if (!role) {
+            return actionError.notFound('Role not found');
+        }
+
+        if (user.roleId != role.id) {
+            await user.update({
+                roleId,
+            });
+        }
 
         return actionResponse(user.get({ plain: true }));
     } catch (error) {

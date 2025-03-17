@@ -94,14 +94,21 @@ export default function PermissionsList({
     definition,
     onChange = () => {},
     readOnly = false,
+    isRoot = false,
 }: {
     permissions: string | number | bigint;
     definition: any;
     onChange?: (event: PermissionListChangeEvent) => void;
     readOnly?: boolean;
+    isRoot?: boolean;
 }) {
     return (
         <div className={styles.List}>
+            {isRoot && (
+                <div className={styles.Root}>
+                    <p>Root user</p>
+                </div>
+            )}
             {definition.groups.map((group: any) => (
                 <Group
                     key={group.name}

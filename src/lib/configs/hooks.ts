@@ -7,11 +7,11 @@ import {
     getConfigs,
     getConfig,
     updateConfig,
+    deleteConfig,
 } from './actions';
 import { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { handleAction } from '../common/actionResponse';
-import { useLocalUser } from '../users/hooks';
 
 // --------
 
@@ -73,5 +73,12 @@ export function useUpdateConfigMutation(key?: string | null) {
                 revalidateConfigs();
             },
         }
+    );
+}
+
+export function useDeleteConfigMutation(key?: string | null) {
+    return useSWRMutation(
+        () => (key != null ? `/configs/all/${key}` : null),
+        (_: string, { arg }: { arg: any }) => handleAction(deleteConfig(key!))
     );
 }

@@ -7,6 +7,7 @@ import {
     getUsers,
     getUser,
     updateUserPermissionsOverrides,
+    updateUserRole,
 } from './actions';
 import { handleAction } from '../common/actionResponse';
 import useSWRMutation from 'swr/mutation';
@@ -62,6 +63,23 @@ export function useUpdateUserPermissionsOverridesMutation(userId?: string) {
         () => (userId != null ? `/users/${userId}` : null),
         (_: string, { arg }: { arg: any }) =>
             handleAction(updateUserPermissionsOverrides(userId!, arg)),
+        {
+            onSuccess: () => {
+                revalidateUsers();
+                if (localUser?.id === userId) {
+                    mutate(undefined, { revalidate: true });
+                }
+            },
+        }
+    );
+}
+
+export function useUpdateUserRoleMutation(userId?: string) {
+    const { data: localUser, mutate } = useLocalUser();
+    return useSWRMutation(
+        () => (userId != null ? `/users/${userId}` : null),
+        (_: string, { arg }: { arg: any }) =>
+            handleAction(updateUserRole(userId!, arg)),
         {
             onSuccess: () => {
                 revalidateUsers();
