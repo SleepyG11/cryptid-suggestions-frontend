@@ -71,7 +71,7 @@ export async function getRoles(options?: {
             },
             group: ['Role.id'],
             order: [
-                ['order', 'DESC'],
+                ['order', 'ASC'],
                 ['id', 'ASC'],
             ],
         });
@@ -152,6 +152,30 @@ export async function updateRole(
             }
         );
         return actionResponse(role.get({ plain: true }));
+    } catch (error) {
+        console.error(error);
+        return actionError.databaseError(error);
+    }
+}
+
+export async function updateRolesOrder(roles: { id: string; order: number }[]) {
+    const permissionsResponse = await getIsLocalUserHasPermissions(
+        RolePermissions.ManageRoles
+    );
+    if (!permissionsResponse.success) return permissionsResponse;
+
+    try {
+        await sequelize.transaction(async (transaction) => {
+            await Promise.all(
+                roles.map((role) => {
+                    return RoleModel.update(
+                        { order: role.order },
+                        { where: { id: role.id }, transaction }
+                    );
+                })
+            );
+        });
+        return actionResponse(true);
     } catch (error) {
         console.error(error);
         return actionError.databaseError(error);

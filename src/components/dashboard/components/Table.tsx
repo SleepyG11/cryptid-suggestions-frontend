@@ -3,6 +3,7 @@ import { Tooltip } from 'radix-ui';
 import classNames from 'classnames';
 import { faFilter } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { forwardRef } from 'react';
 
 const TableRoot: React.FC<React.HTMLAttributes<HTMLTableElement>> = ({
     children,
@@ -72,28 +73,41 @@ const TableColumnHeaderCell: React.FC<
 TableColumnHeaderCell.displayName = 'Table.ColumnHeaderCell';
 // ------------
 
-const TableBody: React.FC<
+const TableBody = forwardRef<
+    HTMLTableSectionElement,
     React.HTMLAttributes<HTMLTableSectionElement> & {
         children: React.ReactNode;
     }
-> = ({ children, className, ...props }) => {
+>(({ children, className, ...props }, ref) => {
     return (
-        <tbody className={classNames(styles.Body, className)} {...props}>
+        <tbody
+            className={classNames(styles.Body, className)}
+            {...props}
+            ref={ref as React.Ref<HTMLTableSectionElement>}
+        >
             {children}
         </tbody>
     );
-};
-const TableRow: React.FC<
+});
+TableBody.displayName = 'Table.Body';
+const TableRow = forwardRef<
+    HTMLTableRowElement,
     React.HTMLAttributes<HTMLTableRowElement> & {
         children: React.ReactNode;
     }
-> = ({ children, className, ...props }) => {
+>(({ children, className, ...props }, ref) => {
     return (
-        <tr className={classNames(styles.Row, className)} {...props}>
+        <tr
+            className={classNames(styles.Row, className)}
+            {...props}
+            ref={ref as React.Ref<HTMLTableRowElement>}
+        >
             {children}
         </tr>
     );
-};
+});
+TableRow.displayName = 'Table.Row';
+
 const TableCell: React.FC<
     React.HTMLAttributes<HTMLTableCellElement> & {
         children: React.ReactNode;

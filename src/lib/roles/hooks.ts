@@ -7,6 +7,7 @@ import {
     updateRole,
     createRole,
     getPublicRoles,
+    updateRolesOrder,
 } from './actions';
 import { mutate } from 'swr';
 import useSWRImmutable from 'swr/immutable';
@@ -84,6 +85,20 @@ export function useUpdateRoleMutation(roleId?: string | null) {
                 if ((localUser?.roleId || localUser?.role?.id) == roleId) {
                     mutate(undefined, { revalidate: true });
                 }
+            },
+        }
+    );
+}
+
+export function useUpdateRolesOrderMutation() {
+    return useSWRMutation(
+        '/roles/all?',
+        (_: string, { arg }: { arg: any }) =>
+            handleAction(updateRolesOrder(arg)),
+        {
+            revalidate: false,
+            onSuccess: () => {
+                revalidateRoles();
             },
         }
     );
