@@ -1,4 +1,5 @@
 import styles from './UserCard.module.scss';
+import classNames from 'classnames';
 import Image from 'next/image';
 
 export default function UserCard({ user }: { user: any }) {
@@ -26,16 +27,16 @@ UserCard.Avatar = function Avatar({
             style={{ '--avatar-size': size + 'px' } as React.CSSProperties}
         >
             <Image
-                src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
+                src={`https://cdn.discordapp.com/avatars/${user?.id}/${user?.avatar}.png`}
                 alt="Avatar"
                 className={styles.Avatar}
                 width={size}
                 height={size}
                 loading="lazy"
             />
-            {user.decoration && (
+            {user?.decoration && (
                 <Image
-                    src={`https://cdn.discordapp.com/avatar-decoration-presets/${user.decoration}.png`}
+                    src={`https://cdn.discordapp.com/avatar-decoration-presets/${user?.decoration}.png`}
                     alt="Decoration"
                     className={styles.Decoration}
                     width={size * 1.25}
@@ -46,13 +47,31 @@ UserCard.Avatar = function Avatar({
         </span>
     );
 };
-UserCard.Role = function Role({ user }: { user: any }) {
+UserCard.Role = function Role({
+    user,
+    asTag = false,
+    size = 'md',
+}: {
+    user: any;
+    asTag?: boolean;
+    size?: 'md' | 'sm';
+}) {
     return (
-        <span className={styles.Role} style={{ color: user.role?.color }}>
-            [{user.role?.name}]
+        <span
+            className={classNames(styles.Role, {
+                [styles.Tag]: asTag,
+                [styles.SizeSm]: size === 'sm',
+                [styles.SizeMd]: size === 'md',
+            })}
+            style={{
+                color: user?.role?.color,
+                backgroundColor: asTag ? user?.role?.color + '40' : undefined,
+            }}
+        >
+            {asTag ? <>{user?.role?.name}</> : <>[{user?.role?.name}]</>}
         </span>
     );
 };
 UserCard.Username = function Username({ user }: { user: any }) {
-    return <span className={styles.Username}>{user.displayName}</span>;
+    return <span className={styles.Username}>{user?.displayName}</span>;
 };

@@ -1,0 +1,63 @@
+@use '@/mixins/container.scss' as *;
+
+.ScrollArea {
+    height: 100%;
+    overflow: hidden;
+}
+
+.ScrollAreaViewport {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+
+// ----------
+
+.RoleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    &.Loading {
+        opacity: 0.5;
+    }
+}
+
+.RoleInfoHeader {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.RoleInfoName {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    input {
+        border: none;
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 16px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        outline: none;
+    }
+
+    input:invalid {
+        outline: solid 1px red;
+    }
+}
+
+.RoleInfoColor {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    label {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+    }
+}

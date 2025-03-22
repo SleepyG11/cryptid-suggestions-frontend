@@ -1,6 +1,6 @@
 'use client';
 
-import { useConfirmModal } from '@/components/confirm-modal/Modal';
+import { useConfirmModal } from '@/components/dashboard/modals/confirm-modal/Modal';
 import Link from 'next/link';
 import { ComponentProps } from 'react';
 

@@ -1,0 +1,31 @@
+.Root {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 500px;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 8px;
+    gap: 8px;
+    border-left: solid 1px rgba(255, 255, 255, 0.1);
+}
+
+.Title {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: white;
+}
+
+.Content {}
+
+.CloseButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+}

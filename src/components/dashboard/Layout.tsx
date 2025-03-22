@@ -1,6 +1,9 @@
 import styles from './Layout.module.scss';
 
-import { ConfirmModalProvider, ConfirmModal } from '../confirm-modal/Modal';
+import {
+    ConfirmModalProvider,
+    ConfirmModal,
+} from './modals/confirm-modal/Modal';
 
 export default function DashboardLayout({
     children,
@@ -14,23 +17,3 @@ export default function DashboardLayout({
         </ConfirmModalProvider>
     );
 }
-
-DashboardLayout.Sidebar = function Sidebar({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return <div className={styles.Sidebar}>{children}</div>;
-};
-
-DashboardLayout.Content = function Content({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (
-        <div className={styles.Content}>
-            <div className={styles.ScrollContent}>{children}</div>
-        </div>
-    );
-};

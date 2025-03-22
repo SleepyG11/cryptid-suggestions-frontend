@@ -11,6 +11,7 @@ import {
 } from './actions';
 import { handleAction } from '../common/actionResponse';
 import useSWRMutation from 'swr/mutation';
+import { logout } from '../discord-oauth2/actions';
 
 // --------
 
@@ -24,11 +25,19 @@ export function revalidateUsers() {
 // --------
 
 export function useLocalUser() {
-    return useSWR('/users/local', () => handleAction(getLocalUser()), {
+    const swr = useSWR('/users/local', () => handleAction(getLocalUser()), {
         revalidateOnReconnect: true,
         revalidateOnFocus: false,
         revalidateIfStale: true,
         refreshInterval: 1000 * 60 * 2,
+    });
+
+    return Object.assign(swr, {
+        logout: () => {
+            return logout().then(() =>
+                swr.mutate(undefined, { revalidate: true }).then(() => {})
+            );
+        },
     });
 }
 

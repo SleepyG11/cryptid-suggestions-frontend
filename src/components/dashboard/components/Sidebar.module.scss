@@ -1,0 +1,96 @@
+.Root {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: max-content;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+    --scrollbar-width: 250px;
+}
+
+.Column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 8px;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    width: var(--scrollbar-width);
+}
+
+// -----------
+
+.Separator {
+    height: 2px;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin: 4px 0;
+}
+
+// -----------
+
+.Top {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 0;
+}
+
+// -----------
+
+.Center {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.CenterScroll {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.Group {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0 8px 8px;
+    // background-color: rgba(255, 255, 255, 0.1);
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.GroupTitle {
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.GroupItems {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.GroupItem {
+    display: block;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+
+    &.Active {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 1);
+    }
+}
+
+// -----------
+
+.Bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 0;
+}

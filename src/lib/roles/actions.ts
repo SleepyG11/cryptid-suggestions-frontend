@@ -1,6 +1,6 @@
 'use server';
 
-import { RoleModel } from '@/database/sequelize';
+import sequelize, { RoleModel, UserModel } from '@/database/sequelize';
 import { RolePermissions } from './enums';
 import {
     getIsLocalUserHasPermissions,
@@ -54,6 +54,22 @@ export async function getRoles(options?: {
     try {
         const roles = await RoleModel.findAll({
             where,
+            include: [
+                {
+                    model: UserModel,
+                    as: 'users',
+                    attributes: [],
+                },
+            ],
+            attributes: {
+                include: [
+                    [
+                        sequelize.fn('COUNT', sequelize.col('users.id')),
+                        'usersCount',
+                    ],
+                ],
+            },
+            group: ['Role.id'],
             order: [
                 ['order', 'DESC'],
                 ['id', 'ASC'],

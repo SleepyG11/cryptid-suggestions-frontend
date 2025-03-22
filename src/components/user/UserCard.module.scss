@@ -3,6 +3,7 @@
     position: relative;
     width: var(--avatar-size);
     height: var(--avatar-size);
+    margin: calc(var(--avatar-size) * 0.125);
 }
 
 .Avatar,
@@ -20,9 +21,21 @@
 // --------
 
 .Role {
-    font-size: 16px;
     font-weight: 400;
     line-height: 100%;
+
+    &.Tag {
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+
+    &.SizeSm {
+        font-size: 14px;
+    }
+
+    &.SizeMd {
+        font-size: 16px;
+    }
 }
 
 // --------

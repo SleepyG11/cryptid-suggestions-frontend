@@ -1,8 +1,15 @@
 * {
-    color: black;
-    font-family: var(--font-balatro)
+    color: white;
+    font-family: var(--font-ibm-plex-mono);
 }
 
 html {
-    background-color: white;
+    background-color: black;
+}
+
+body {}
+
+html,
+body {
+    overflow: hidden;
 }

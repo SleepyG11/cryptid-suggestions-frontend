@@ -1,0 +1,54 @@
+.Root {
+    height: max-content;
+    width: 100%;
+    border-collapse: collapse;
+    border: solid 1px rgba(255, 255, 255, 0.1);
+}
+
+.Header {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.Body {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.Row {
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.Cell {
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.ColumnHeaderCell {
+    gap: 8px;
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.RowHeaderCell {
+    background-color: rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.CellContainer {
+    display: flex;
+    gap: 8px;
+}
+
+.CellContent {
+    flex-grow: 1;
+}
+
+.LeadingIcon {
+    flex-shrink: 0;
+}
+
+.TrailingIcon {
+    flex-shrink: 0;
+}

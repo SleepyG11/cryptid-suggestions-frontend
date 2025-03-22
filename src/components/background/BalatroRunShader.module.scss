@@ -1,0 +1,30 @@
+.Container {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.3;
+
+    canvas,
+    img {
+        position: absolute;
+    }
+
+    img {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+        z-index: 1;
+        height: 100vh;
+        width: 100vw;
+        object-fit: cover;
+        object-position: center;
+        filter: blur(4px);
+    }
+
+    &.Loading canvas {
+        opacity: 0;
+    }
+
+    &.Loading img {
+        opacity: 1;
+    }
+}

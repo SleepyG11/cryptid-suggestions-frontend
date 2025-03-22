@@ -1,6 +1,5 @@
 import 'server-only';
 
-import type { Dialect } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import pg from 'pg';
 
@@ -10,7 +9,7 @@ import { RolePermissions } from '@/lib/roles/enums';
 import { ConfigType } from '@/lib/configs/enums';
 
 const sequelize = new Sequelize({
-    dialect: process.env.DATABASE_DIALECT as Dialect,
+    dialect: 'postgres',
     dialectModule: pg,
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT ?? '5432'),
