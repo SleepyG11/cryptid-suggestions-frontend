@@ -83,6 +83,10 @@
     align-items: center;
     justify-content: center;
 
+    &.ReadOnly {
+        opacity: 0.3;
+    }
+
     &.Selected {
         &.Allow {
             background-color: #00ff00;

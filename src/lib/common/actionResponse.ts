@@ -1,5 +1,3 @@
-import { Middleware } from 'swr';
-
 export type ActionFailResponse = {
     success: false;
     status: number;

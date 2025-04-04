@@ -104,4 +104,8 @@
     input:checked+.Slider:before {
         transform: translateX(14px);
     }
+
+    input[readonly]+.Slider {
+        opacity: 0.3;
+    }
 }

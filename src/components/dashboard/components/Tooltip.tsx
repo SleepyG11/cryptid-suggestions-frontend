@@ -9,6 +9,8 @@ export default function Tooltip({
     defaultOpen,
     onOpenChange,
     className,
+    side = 'top',
+    align = 'center',
     ...props
 }: TooltipPrimitive.TooltipContentProps & {
     info?: React.ReactNode;
@@ -18,7 +20,7 @@ export default function Tooltip({
 }) {
     return (
         <TooltipPrimitive.Root
-            open={open}
+            open={!!info && open}
             defaultOpen={defaultOpen}
             onOpenChange={onOpenChange}
         >
@@ -26,8 +28,6 @@ export default function Tooltip({
                 {children}
             </TooltipPrimitive.Trigger>
             <TooltipPrimitive.Content
-                side="top"
-                align="center"
                 className={classNames(styles.Content, className)}
                 {...props}
             >

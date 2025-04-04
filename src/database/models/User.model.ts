@@ -40,7 +40,7 @@ export class Role extends Model {
 
     @AllowNull(false)
     @Default(0)
-    @Column(DataType.BIGINT)
+    @Column(DataType.DECIMAL(128, 0))
     permissions: string;
 
     @AllowNull(false)
@@ -101,12 +101,12 @@ export class User extends Model {
 
     @AllowNull(false)
     @Default(0)
-    @Column(DataType.BIGINT)
+    @Column(DataType.DECIMAL(128, 0))
     allowPermissionsOverride: string;
 
     @AllowNull(false)
     @Default(0)
-    @Column(DataType.BIGINT)
+    @Column(DataType.DECIMAL(128, 0))
     denyPermissionsOverride: string;
 
     @AllowNull(false)

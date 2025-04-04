@@ -1,9 +1,8 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useRole, useUpdateRoleMutation } from '@/lib/roles/hooks';
 import PermissionsList from '../../../permissions/PermissionsList';
-import { RolePermissionsDefinition } from '@/lib/roles/enums';
 import styles from './RoleInfo.module.scss';
 import { useForm, Controller } from 'react-hook-form';
 import { useConfirmModal } from '../../modals/confirm-modal/Modal';
@@ -14,7 +13,7 @@ export default function RoleInfo({ roleId }: { roleId: string }) {
     const { trigger, isMutating } = useUpdateRoleMutation(roleId);
     const { data, isLoading } = useRole(roleId);
 
-    const { control, formState, setValue, reset, getValues } = useForm({
+    const { control, formState, setValue, reset, getValues, watch } = useForm({
         values: data,
         defaultValues: {
             name: '',
@@ -69,6 +68,21 @@ export default function RoleInfo({ roleId }: { roleId: string }) {
         };
     }, [update]);
 
+    const permissions = watch('permissions');
+    const list = useMemo(() => {
+        return (
+            <PermissionsList
+                permissions={permissions}
+                onChange={(event) => {
+                    setValue('permissions', String(event.newPermissions), {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                    });
+                }}
+            />
+        );
+    }, [permissions, setValue]);
+
     return (
         <ScrollArea.Root className={styles.ScrollArea}>
             <ScrollArea.Viewport className={styles.ScrollAreaViewport}>
@@ -112,26 +126,7 @@ export default function RoleInfo({ roleId }: { roleId: string }) {
                             }}
                         />
                     </div>
-                    <Controller
-                        control={control}
-                        name="permissions"
-                        render={({ field }) => (
-                            <PermissionsList
-                                permissions={field.value}
-                                definition={RolePermissionsDefinition}
-                                onChange={(event) => {
-                                    setValue(
-                                        'permissions',
-                                        String(event.newPermissions),
-                                        {
-                                            shouldDirty: true,
-                                            shouldValidate: true,
-                                        }
-                                    );
-                                }}
-                            />
-                        )}
-                    />
+                    {list}
                 </div>
             </ScrollArea.Viewport>
             <ScrollArea.Scrollbar orientation="vertical">
