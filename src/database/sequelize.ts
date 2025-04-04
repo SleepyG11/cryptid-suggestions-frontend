@@ -5,6 +5,12 @@ import pg from 'pg';
 
 import { Config } from './models/Config.model';
 import { Role, User } from './models/User.model';
+import {
+    Keyword,
+    MechanicKeyword,
+    ContentTag,
+    TextFormat,
+} from './models/Glossary.model';
 import { RolePermissions } from '@/lib/roles/enums';
 import { ConfigType } from '@/lib/configs/enums';
 
@@ -19,7 +25,15 @@ const sequelize = new Sequelize({
     logging: false,
 });
 
-sequelize.addModels([User, Role, Config]);
+sequelize.addModels([
+    User,
+    Role,
+    Config,
+    Keyword,
+    MechanicKeyword,
+    ContentTag,
+    TextFormat,
+]);
 
 await sequelize.sync().then(async () => {
     await Promise.all([
@@ -61,4 +75,8 @@ await sequelize.sync().then(async () => {
 export const UserModel = User;
 export const RoleModel = Role;
 export const ConfigModel = Config;
+export const KeywordModel = Keyword;
+export const MechanicKeywordModel = MechanicKeyword;
+export const ContentTagModel = ContentTag;
+export const TextFormatModel = TextFormat;
 export default sequelize;
