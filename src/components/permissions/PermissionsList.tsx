@@ -42,10 +42,6 @@ function Item({
         readOnly || requirements.followed.length || !requirements.met
     );
 
-    if (permission === RolePermissions.Administrator) {
-        console.log('Rerender');
-    }
-
     const info = useMemo(() => {
         if (requirements.followed.length) {
             return (

@@ -20,6 +20,7 @@ import { ConfigModel } from '../sequelize';
 import { isUserHasPermissions } from '@/lib/users/utilities';
 
 @Table({
+    modelName: 'Role',
     tableName: 'roles',
     timestamps: true,
     paranoid: true,
@@ -63,6 +64,7 @@ export class Role extends Model {
 }
 
 @Table({
+    modelName: 'User',
     tableName: 'users',
     timestamps: true,
     paranoid: true,

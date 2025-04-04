@@ -36,8 +36,7 @@ await sequelize.sync().then(async () => {
                     RolePermissions.CreateSubmissions |
                     RolePermissions.VoteForSubmissions |
                     RolePermissions.ViewSubmissionComments |
-                    RolePermissions.CreateSubmissionComments |
-                    RolePermissions.AttachFiles,
+                    RolePermissions.CreateSubmissionComments,
             },
             returning: false,
         }),

@@ -276,8 +276,6 @@ export default function OverridePermissionsList({
 
     const groups = Object.keys(RolePermissionGroups);
 
-    console.log('Rerender');
-
     return (
         <TooltipProvider>
             <div className={styles.List}>

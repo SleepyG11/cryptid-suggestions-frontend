@@ -11,9 +11,10 @@ import {
     UpdatedAt,
     Default,
 } from 'sequelize-typescript';
-
 import { ConfigType } from '@/lib/configs/enums';
+
 @Table({
+    modelName: 'Config',
     tableName: 'configs',
     timestamps: true,
 })
