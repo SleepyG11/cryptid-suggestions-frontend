@@ -13,12 +13,12 @@ import type ReactSelect from 'react-select';
 import OverridePermissionsList from '@/components/permissions/OverridePermissionsList';
 import { RolePermissions } from '@/lib/roles/enums';
 import { useForm, useFormContext, FormProvider } from 'react-hook-form';
-import { useConfirmModal } from '@/components/dashboard/modals/confirm-modal/Modal';
 import { useUpdateUserRoleMutation } from '@/lib/users/hooks';
 import { usePublicRoles } from '@/lib/roles/hooks';
 import { isUserHasPermissions } from '@/lib/users/utilities';
 import { ScrollArea } from 'radix-ui';
 import UserCard from '@/components/user/UserCard';
+import { useConfirmRequestMethods } from '@/lib/confirm-queue/context';
 
 const Select = dynamic(() => import('react-select'), {
     ssr: false,
@@ -89,7 +89,6 @@ function UserRoleSelect({ user }: { user: any }) {
         />
     );
 }
-
 function UserPermissionsList({ user }: { user: any }) {
     const { setValue, watch } = useFormContext();
     const { data: localUser } = useLocalUser();
@@ -127,7 +126,7 @@ function UserPermissionsList({ user }: { user: any }) {
 }
 
 export default function UserInfo({ userId }: { userId: string }) {
-    const { update } = useConfirmModal();
+    const { update } = useConfirmRequestMethods('user-info');
     const { data } = useUser(userId);
     const { trigger: triggerPermissions, isMutating: isMutatingPermissions } =
         useUpdateUserPermissionsOverridesMutation(userId);
@@ -190,16 +189,6 @@ export default function UserInfo({ userId }: { userId: string }) {
         onCancel,
         update,
     ]);
-
-    useEffect(() => {
-        return () => {
-            update({
-                onConfirm: null,
-                onCancel: null,
-                isOpen: false,
-            });
-        };
-    }, [update]);
 
     return (
         <FormProvider {...form}>

@@ -10,6 +10,7 @@ import {
     CreatedAt,
     UpdatedAt,
     Default,
+    DeletedAt,
 } from 'sequelize-typescript';
 
 @Table({
@@ -27,8 +28,8 @@ export class Keyword extends Model {
     phrase: string;
 
     @AllowNull(false)
-    @Column(DataType.ARRAY(DataType.STRING))
     @Default([])
+    @Column(DataType.ARRAY(DataType.STRING))
     synonyms: string[];
 
     @AllowNull(false)
@@ -39,6 +40,8 @@ export class Keyword extends Model {
     createdAt: Date;
     @UpdatedAt
     updatedAt: Date;
+    @DeletedAt
+    deletedAt: Date;
 }
 
 @Table({
@@ -64,18 +67,18 @@ export class MechanicKeyword extends Model {
     format?: string;
 
     @AllowNull(false)
-    @Column(DataType.ARRAY(DataType.STRING))
     @Default([])
+    @Column(DataType.ARRAY(DataType.STRING))
     defaultVars: string[];
 
     @AllowNull(false)
-    @Column(DataType.STRING)
     @Default('#000000')
+    @Column(DataType.STRING)
     badgeColor: string;
 
     @AllowNull(false)
-    @Column(DataType.STRING)
     @Default('#ffffff')
+    @Column(DataType.STRING)
     badgeBgColor: string;
 
     @CreatedAt
@@ -83,6 +86,9 @@ export class MechanicKeyword extends Model {
 
     @UpdatedAt
     updatedAt: Date;
+
+    @DeletedAt
+    deletedAt: Date;
 }
 
 @Table({
@@ -120,6 +126,9 @@ export class ContentTag extends Model {
 
     @UpdatedAt
     updatedAt: Date;
+
+    @DeletedAt
+    deletedAt: Date;
 }
 
 @Table({
@@ -149,4 +158,7 @@ export class TextFormat extends Model {
 
     @UpdatedAt
     updatedAt: Date;
+
+    @DeletedAt
+    deletedAt: Date;
 }

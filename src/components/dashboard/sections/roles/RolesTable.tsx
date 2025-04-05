@@ -13,7 +13,10 @@ import { useDrag, useDrop } from 'react-dnd';
 import { useEffect, useState, useCallback } from 'react';
 import classNames from 'classnames';
 import styles from './RolesTable.module.scss';
-import { useConfirmModal } from '../../modals/confirm-modal/Modal';
+import {
+    useConfirmRequestMethods,
+    useConfirmState,
+} from '@/lib/confirm-queue/context';
 import _ from 'lodash';
 
 const roleSorter = (a: any, b: any) => a.order - b.order || a.id - b.id;
@@ -114,7 +117,8 @@ function Row({
 }
 
 export default function RolesTable() {
-    const { update, isOpen } = useConfirmModal();
+    const { update } = useConfirmRequestMethods('roles-table');
+    const { isEmpty } = useConfirmState();
 
     const [reorder, setReorder] = useState({
         active: false,
@@ -206,16 +210,6 @@ export default function RolesTable() {
         });
     }, [update, confirmReorder, isMutating, cancelReorder, reorder.active]);
 
-    useEffect(() => {
-        return () => {
-            update({
-                onConfirm: null,
-                onCancel: null,
-                isOpen: false,
-            });
-        };
-    }, [update]);
-
     const rolesToDisplay = reorder.active
         ? reorder.new.map((r) => r.role)
         : roles;
@@ -229,11 +223,7 @@ export default function RolesTable() {
                 <div className="flex flex-row gap-2">
                     <span
                         onClick={() => {
-                            if (isOpen) {
-                                return update({
-                                    isShaking: true,
-                                });
-                            }
+                            if (!isEmpty()) return;
                             const snapshot = roles
                                 .map((role) => ({
                                     id: role.id,

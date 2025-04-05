@@ -5,13 +5,13 @@ import { useCreateRoleMutation } from '@/lib/roles/hooks';
 import PermissionsList from '../../../permissions/PermissionsList';
 import styles from './RoleInfo.module.scss';
 import { useForm, Controller } from 'react-hook-form';
-import { useConfirmModal } from '../../modals/confirm-modal/Modal';
 import { ScrollArea } from 'radix-ui';
 import { useRouter } from 'next/navigation';
+import { useConfirmRequestMethods } from '@/lib/confirm-queue/context';
 
 export default function NewRoleInfo() {
     const router = useRouter();
-    const { update } = useConfirmModal();
+    const { update } = useConfirmRequestMethods('new-role');
     const { trigger, isMutating } = useCreateRoleMutation();
 
     const { control, formState, setValue, reset, getValues, watch } = useForm({
@@ -53,16 +53,6 @@ export default function NewRoleInfo() {
         onCancel,
         update,
     ]);
-
-    useEffect(() => {
-        return () => {
-            update({
-                onConfirm: null,
-                onCancel: null,
-                isOpen: false,
-            });
-        };
-    }, [update]);
 
     const permissions = watch('permissions');
     const list = useMemo(() => {
